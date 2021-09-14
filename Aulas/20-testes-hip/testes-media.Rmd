@@ -1,0 +1,649 @@
+---
+title: 'Testes de hipóteses para a média'
+subtitle: 'Probest'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: ' (v. `r format(Sys.Date(), "%d/%m/%Y")`)'
+lang: 'pt'
+# TODO: include LaTeX fields
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: styles.css
+    toc: true
+    toc_depth: 2
+    # toc_float: true
+    number_sections: true
+    fig_caption: true
+    df_print: paged
+    self_contained: true
+    code_download: true
+    # code_folding: show
+    # keep_md: true
+    # includes:
+    #   in_header: header.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+
+opts_chunk$set(
+  echo = TRUE, 
+  # collapse = TRUE,
+  # cache = TRUE,
+  out.width = "75%",
+  fig.align = 'center',
+  fig.width = 6,
+  fig.show = "hold"
+)
+
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+
+# Supress crayon output
+options(crayon.enabled = FALSE)
+
+# Useful libraries
+library(glue)
+library(patchwork)
+library(latex2exp)
+library(kableExtra)
+
+# For nice dataframe summaries
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+# Tidy!
+library(tidyverse)
+
+# Sober theme for ggplot
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little 
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little 
+      ),
+      axis.line = element_blank(),           # No axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+# Avoid scientific notation and use a comma as decimal separator
+options(
+  scipen = 15,
+  OutDec = ','
+)
+
+# Format a number with thousand separators (default point)
+# and decimal comma enclosed in curly braces for LaTeX printing.
+# CAREFUL: if called outside math mode, will print the braces!
+fm <- function(x, big = '.', decimal = '{,}') {
+  if (!is.numeric(x)) {
+    x
+  } else {
+    prettyNum(x, big.mark = big, decimal.mark = decimal)
+  }
+
+}
+
+knitr::knit_hooks$set(inline = fm)
+
+
+# To center the results of a chunk (image, video etc.)
+# Usage: 
+#         out.extra=center()
+#         
+center <- function(){
+  
+  if (is_html_output()) {
+    'class="center"'
+  }
+  
+}
+
+
+# To embed YT videos in HTML and the link (centered) in LaTeX
+embed_yt <- function(code) {
+
+  if (is_html_output()) {
+    include_url(
+      paste0(
+        'https://www.youtube.com/embed/',
+        code
+      )
+    )
+  } else {
+    cat(
+      paste0(
+        '```{=latex}\n',
+        '\\begin{center} \\url{https://youtu.be/',
+        code,
+        '} \\end{center}\n',
+        '```'
+      )
+    )
+  }
+  
+}
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Exemplo: duração da gestação { #gest }
+
+```{r valores0, echo=FALSE}
+xbar <- 275
+σ <- 10
+n <- 25
+ep <- σ / sqrt(n)
+m0 <- 280
+dif <- abs(m0 - xbar)
+```
+
+::: {.rmdbox}
+
+* O tempo de gestação em seres humanos segue a distribuição normal, com média $\mu = `r m0`$ dias e desvio padrão $\sigma = `r σ`$\ dias.
+
+* Em uma amostra de $n = `r n`$ bebês nascidos em uma clínica, o tempo médio de gestação foi de $\bar x = `r xbar`$ dias.
+
+* Esta amostra é evidência de que a duração média da gestação humana é *diferente de* $`r m0`$ dias?
+
+:::
+
+## Hipóteses
+
+* A hipótese de nulidade diz que a duração média da gestação é de $`r m0`$ dias:
+
+  $$
+  H_0 : \mu = `r m0`
+  $$
+
+* A hipótese altermativa diz que duração média da gestação é diferente de $`r m0`$ dias:
+
+  $$
+  H_A : \mu \neq `r m0`
+  $$
+
+
+## Condições
+
+* Verifique que as condições de independência, aleatoriedade, representatividade e tamanho da amostra são satisfeitas.
+
+* Como a distribuição da população é normal, podemos aceitar $n = `r n`$.
+
+
+## Valores
+
+* Tamanho da amostra: $n = `r n`$
+
+* Média amostral: $\bar x = `r xbar`$
+
+* Hipótese de nulidade: $H_0 : \mu = `r m0`$
+
+* Hipótese alternativa: $H_A : \mu \neq `r m0`$
+
+* Nível de significância: $\alpha = 0{,}05$
+
+
+## O valor $p$ e a conclusão
+
+* Como a hipótese alternativa envolve "$\neq$", [o teste é bilateral]{.hl}.
+
+* [Já sabemos $\sigma$ (o desvio padrão populacional)]{.hl}. Não precisamos do desvio padrão amostral.
+* [A distribuição amostral vai ser a normal]{.hl} com média $\mu = `r m0`$ e desvio padrão
+
+  $$
+  EP = \frac{\sigma}{\sqrt{n}} = \frac{`r σ`}{\sqrt{`r n`}} = `r ep`
+  $$
+
+
+* Usando esta distribuição amostral, calculamos a probabilidade de obter uma amostra como a que obtivemos (com a média amostral $`r dif`$ dias [menor ou maior]{.hl} que a média suposta por $H_0$) ou mais extrema.
+
+* O valor $p$ vai ser esta probabilidade.
+
+    ```{r graf-gest, echo=FALSE}
+    m_min <- 270
+    m_max <- 290
+    m_direita <- m0 + (m0 - xbar)
+    
+    brks <- c(m_min, xbar, m0, m_direita, m_max)
+    
+    ggplot() +
+      stat_function(
+        fun = dnorm,
+        args = c(m0, ep),
+        xlim = c(m_min, m_max)
+      ) +
+      stat_function(
+        fun = dnorm,
+        args = c(m0, ep),
+        xlim = c(m_min, xbar),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      stat_function(
+        fun = dnorm,
+        args = c(m0, ep),
+        xlim = c(m_direita, m_max),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      scale_x_continuous(
+        breaks = brks
+      ) +
+      labs(
+        y = NULL
+      )
+    ```
+
+* Calculando em R:
+
+    ```{r}
+    <<valores0>>
+    valor_p <- pnorm(xbar, m0, ep) +
+      pnorm(m0 + dif, m0, ep, lower.tail = FALSE)
+    valor_p
+    ```
+
+* Este valor é menor do que $\alpha = 0{,}05$. [Logo, nossa amostra é evidência para rejeitar a hipótese de nulidade neste nível de significância]{.hl}. 
+
+* Pode parecer surpreendente que $`r dif`$ dias façam tanta diferença assim. O problema é que o desvio padrão da população é relativamente baixo: $`r σ`$ dias. A variação é pequena. Por isso a diferença entre a média amostral e a média afirmada em $H_0$ é significativa.
+
+* Visto de outro modo: como $\sigma$ é um valor pequeno, o erro padrão (i.e., o desvio padrão da distribuição amostral) também é pequeno; a distribuição amostral, vista na figura acima, é bem estreita, com boa parte da probabilidade bem próxima da média.
+
+
+## Em R
+
+* Vamos carregar um pacote que implementa o teste z:
+
+    ```{r message=FALSE}
+    library(BSDA)
+    ```
+
+* Esta função recebe o resumo (*summary*) da amostra:
+
+    ```{r ztest}
+    zsum.test(
+      mean.x = xbar, 
+      sigma.x = σ, 
+      n.x = n,
+      alternative = 'two.sided',
+      mu = m0
+    )
+    ```
+
+
+# Exemplo: salmões novamente
+
+```{r echo=FALSE, message=FALSE}
+salmoes <- read_csv('Dados/Farmed_Salmon.csv') %>% 
+  select(location = Location, mirex = Mirex) %>% 
+  filter(!is.na(mirex))
+```
+
+```{r valores1, echo=FALSE}
+xbar <- mean(salmoes$mirex)
+s <- sd(salmoes$mirex)
+n <- length(salmoes$mirex)
+ep <- s / sqrt(n)
+m0 <- 0.08
+t0 <- (xbar - m0) / ep
+```
+
+::: {.rmdbox}
+
+* Numa amostra de $150$ salmões, foi medida a concentração do contaminante [*mirex*](https://en.wikipedia.org/wiki/Mirex), um inseticida banido pela [Convenção de Estocolmo](https://pt.wikipedia.org/wiki/Conven%C3%A7%C3%A3o_de_Estocolmo).
+
+* As concentrações (em ppm) estão resumidas na tabela abaixo.
+
+  ```{r echo=FALSE}
+  salmoes
+  ```
+
+* A média foi $\overline x = `r xbar`$ppm.
+
+* O desvio padrão *amostral* foi $s = `r s`$ppm.
+
+* Não sabemos o desvio padrão *populacional*.
+
+* Alguém nos diz que a concentração máxima de mirex permitida é de $`r m0`$ppm.
+
+* Esta amostra é evidência de que a concentração máxima foi ultrapassada?
+
+:::
+
+
+## Hipóteses
+
+* A hipótese de nulidade diz que a concentração é a máxima permitida ou menor:
+
+  $$
+  H_0 : \mu \leq `r m0`
+  $$
+
+* A hipótese altermativa diz que a concentração máxima foi ultrapassada:
+
+  $$
+  H_A : \mu > `r m0`
+  $$
+
+
+## Condições
+
+* Verifique que as condições de independência, aleatoriedade, representatividade e tamanho da amostra são satisfeitas.
+
+* Se precisar, reveja o vídeo sobre intervalos de confiança para a média, onde este exemplo também aparece.
+
+
+## Valores
+
+* Tamanho da amostra: $n = `r n`$
+
+* Média amostral: $\bar x = `r xbar`$
+
+* Hipótese de nulidade: $H_0 : \mu \leq `r m0`$
+
+* Hipótese alternativa: $H_A : \mu > `r m0`$
+
+* Nível de significância: $\alpha = 0{,}05$
+
+
+## O valor $p$ e a conclusão
+
+* Como não sabemos $\sigma$ (o desvio padrão populacional), [vamos usar $s$ (o desvio padrão amostral)]{.hl}.
+
+* Com isto, [a distribuição amostral das médias será a distribuição $t$]{.hl}, com $n - 1 = `r n - 1`$ graus de liberdade.
+
+* Mas, [como a distribuição $t$ tem média $0$, precisamos padronizar a nossa média amostral]{.hl}: subtrair a média que $H_0$ diz ser a verdadeira ($\mu_0 = `r m0`$) e dividir pelo erro padrão:
+
+  $$
+  t_0 = \frac{\bar x - \mu_0}{EP}
+  $$
+
+* O erro padrão, como vimos nas aulas sobre intervalos de confiança, é 
+
+  $$
+  EP = \frac{s}{\sqrt{n}} = \frac{`r s`}{\sqrt{`r n`}} = `r ep`
+  $$
+
+* Isto nos dá
+
+  $$
+  t_0 = \frac{\bar x - \mu_0}{EP} = \frac{`r xbar` - `r m0`}{`r ep`} = `r t0`
+  $$
+
+* Como a hipótese alternativa envolve "$>$" e não "$\neq$", [o teste é unilateral]{.hl}.
+
+* O valor $p$ é a probabilidade de a [média amostral padronizada]{.hl} ser maior do que $t_0$:
+
+    ```{r echo=FALSE}
+    brks <- c(seq(-4, 4, 2), t0 %>% round(3))
+    xmin <- -4
+    xmax <- 4
+    
+    ggplot() +
+      stat_function(
+        fun = dt,
+        args = n - 1,
+        xlim = c(xmin, xmax)
+      ) +
+      stat_function(
+        fun = dt,
+        args = n - 1,
+        xlim = c(t0, xmax),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      scale_x_continuous(
+        breaks = brks
+      ) +
+      labs(
+        y = NULL
+      )
+    ```
+
+* Este valor pode ser calculado em R (os valores da amostra estão em `salmoes$mirex`):
+
+    ```{r}
+    <<valores1>>
+    valor_p <- pt(t0, n - 1, lower.tail = FALSE)
+    valor_p
+    ```
+
+* Conclusão: [como o valor $p$ é menor do que $\alpha$, rejeitamos a hipótese de nulidade.]{.hl} Com este nível de significância, a amostra é evidência de que a contaminação é maior do que a permitida.
+
+
+## Em R
+
+```{r}
+t.test(
+  salmoes$mirex, 
+  alternative = 'greater',
+  mu = m0
+)
+```
+
+
+
+# Relação entre testes e IC
+
+* Intervalos de confiança e testes de hipóteses são [duas maneiras de enxergar a mesma inferência]{.hl}.
+
+* Lembre-se do [exemplo sobre o tempo de gestação](#gest):
+
+    ```{r echo=FALSE}
+    <<valores0>>
+    <<graf-gest>>
+    ```
+
+    ```{r}
+    zt <- zsum.test(
+      mean.x = xbar, 
+      sigma.x = σ, 
+      n.x = n,
+      alternative = 'two.sided',
+      mu = m0
+    )
+    
+    zt
+    ```
+
+    ```{r echo=FALSE}
+    ic <- zt$conf.int[1:2]
+    ```
+
+* Mantenha fixa a nossa amostra de $`r n`$ gestações.
+
+* A hipótese de nulidade [foi rejeitada]{.hl} com $\alpha = 0{,}05$ porque o valor que ela "defendia" ($`r m0`$) estava [fora do intervalo de confiança]{.hl} de $1 - \alpha = 0{,}95$.
+
+* Reciprocamente, mantendo $\alpha = 0{,}05$, qualquer hipótese de nulidade que [não for rejeitada]{.hl} vai "defender" um valor [dentro do intervalo de confiança]{.hl} (entre $`r ic[1]`$ e $`r ic[2]`$).
+
+* Experimente rodar a função `zsum.test` com diferentes valores de `mu` para verificar que isto acontece.
+
+
+# Explorando tudo interativamente (com outro app)
+
+* https://rpsychologist.com/pvalue/
+
+
+# Exercícios
+
+## Gestação
+
+* No [exemplo](#gest), mude a hipótese alternativa para
+
+  $$
+  H_A : \mu < `r m0`?
+  $$
+
+  * Sem refazer os cálculos, você consegue dizer qual é o novo valor $p$? Compare-o com o valor $p$ original.
+  
+  * A hipótese de nulidade continuaria sendo rejeitada?
+
+  * O que mudaria na chamada da função `zsum.test`?
+  
+
+## Salmões
+
+* Qual seria o valor $p$ se a média amostral tivesse sido $0{,}08$ppm?
+
+* Qual seria o valor $p$ se as hipóteses fossem
+
+  $$
+  \begin{align*}
+  H_0 &: \mu = 0{,}08 \\
+  H_A &: \mu \neq 0{,}08 
+  \end{align*}
+  $$
+
+  e a média amostral tivesse sido $0{,}08$ppm?
+
+* Quando o valor $p$ é $0$?
+
+
+## Testes e IC
+
+* O que acontece com o intervalo de confiança quando o teste de hipótese é unilateral?
+
+* Já que intervalos de confiança e testes de hipóteses contêm a mesma informação, qual dos dois procedimentos você acha mais intuitivo? Mais fácil de executar? Mais fácil de apresentar a um leigo?
+
+
+## App
+
+* Entre em https://rpsychologist.com/pvalue/
+
+* No "painel de controle", deixe `sample dist. statistic` (estatística da distribuição amostral) em `Mean` (média). Com isto, a curva de baixo vai mostrar a distribuição amostral das médias.
+
+* Qual o efeito, sobre a distribuição amostral, de aumentar o tamanho da amostra? Por quê?
+
+* Defina o tamanho da amostra como $9$.
+
+* O app está configurado para o seguinte teste:
+
+  $$
+  \begin{align*}
+  H_0 &: \mu = 100 \\
+  H_A &: \mu \neq 100 
+  \end{align*}
+  $$
+
+* [Primeira situação: a hipótese de nulidade é verdadeira.]{.hl}
+
+  1. Faça o que você deve fazer para que, no app, $H_0$ seja verdadeira.  
+     Dica: a distribuição populacional "verdadeira" é representada pela curva de cima.
+  
+  1. Retire $200$ amostras de $9$ elementos cada, apertando quatro vezes o botão `+50`.
+  
+  1. Quantas das $200$ bolinhas são azuis? O que elas significam em termos de médias amostrais? Qual a relação delas com $\alpha$?
+  
+  1. Mude `sample dist. statistic` para `Z`. 
+  
+  1. O que significam os novos rótulos no eixo horizontal da distribuição amostral?
+  
+  1. O que significam as linhas pontilhadas verticais? Em que valores do eixo horizontal elas estão?
+  
+  1. Se o app nos deixasse mudar essas linhas pontilhadas de posição (o app não deixa), o que isto significaria?
+  
+  1. Mude `sample dist. statistic` para `p-value`. Agora, as $200$ amostras aparecem distribuídas de acordo com seus valores $p$.
+  
+  1. O que significam as bolinhas azuis?
+  
+  1. O que significam as bolinhas vermelhas?
+  
+  1. Com $H_0$ verdadeira, como os valores $p$ das $200$ amostras estão distribuídos?
+  
+* [Segunda situação: a hipótese de nulidade é falsa.]{.hl}
+
+  1. Apague as amostras, clicando em `CLEAR`.
+
+  1. Mude `sample dist. statistic` para `mean`. 
+  
+  1. Defina o tamanho da amostra como $9$.
+
+  1. Faça o que você deve fazer para que a média populacional passe a ser [aproximadamente $110$]{.hl}, tornando $H_0$ falsa.
+
+  1. Retire $200$ amostras de $9$ elementos cada, apertando quatro vezes o botão `+50`.
+  
+  1. Qual fração aproximada das $200$ bolinhas são azuis? O que elas significam em termos de médias amostrais? Qual a relação delas com $1 - \beta$ (a potência)?
+  
+  1. Você pode alterar o tamanho das amostras agora, e o app vai atualizar as figuras magicamente. Qual deve ser o valor de $n$ para que a potência ultrapasse $0{,}8$?
+
+  1. Mude `sample dist. statistic` para `p-value`.
+  
+  1. O que significam as bolinhas azuis?
+  
+  1. O que significam as bolinhas vermelhas?
+  
+  1. Com $H_0$ falsa, como os valores $p$ das $200$ amostras estão distribuídos?
+  
+* [Terceira situação: a hipótese de nulidade é falsa, mas não muito.]{.hl}
+
+  1. Apague as amostras, clicando em `CLEAR`.
+
+  1. Faça o que você deve fazer para que a média populacional passe a ser [aproximadamente $105$]{.hl}, tornando $H_0$ falsa, mas com uma diferença menor para a média verdadeira.
+  
+  1. Refaça os passos restantes da segunda situação.
+  
+  1. Comente os resultados.
+
+* [Quarta situação: a hipótese de nulidade é falsa, e muito.]{.hl}
+
+  1. Apague as amostras, clicando em `CLEAR`.
+
+  1. Faça o que você deve fazer para que a média populacional passe a ser [aproximadamente $120$]{.hl}, tornando $H_0$ falsa, com uma diferença muito grande para a média verdadeira.
+  
+  1. Refaça os passos restantes da segunda situação.
+  
+  1. Comente os resultados.
+
+  
+* **Desafio:** 
+
+  * A curva da parte superior da página, de onde "pingam" as médias amostrais, é uma distribuição normal. 
+  
+  * Durante os exercícios acima, você descobriu como alterar a média dessa normal.
+  
+  * Você consegue calcular o desvio padrão dessa normal?  
+    Dica: considere a fórmula que dá o erro padrão da distribuição amostral (a curva de baixo).
+
+
+
+
+<div style='height: 1000px'></div>

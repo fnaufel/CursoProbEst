@@ -1,0 +1,222 @@
+---
+title: "Intro: Dados"
+author: "fnaufel"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    seal: false
+    chakra: "file:///home/fnaufel/Xaringan/js/remark-latest.min.js"
+    lib_dir: libs
+    includes:
+      in_header: "/home/fnaufel/Xaringan/js/in_header.html"
+      after_body: "/home/fnaufel/Xaringan/js/after_body.html"
+      mathjax: "file:///home/fnaufel/Xaringan/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"
+    css: ["default", 
+          "default-fonts", 
+          "file:///home/fnaufel/Xaringan/css/general.css", 
+          "file:///home/fnaufel/Xaringan/css/jetbrains-font.css",
+          "file:///home/fnaufel/Xaringan/css/apron.css",
+          "file:///home/fnaufel/Xaringan/css/descartes.css",
+          "file:///home/fnaufel/Xaringan/css/adirondack.css"]
+    nature:
+      beforeInit: "file:///home/fnaufel/Xaringan/js/macros.js"
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  comment = NA,
+  echo = FALSE, 
+  fig.align = 'center'
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw(base_size = 25) +
+  theme(
+    axis.line = element_blank(),
+    panel.border = element_blank(),
+    panel.grid.minor = element_blank()
+  )
+)
+
+```
+
+```{css echo=FALSE}
+@import url(https://fonts.googleapis.com/css?family=Quattrocento+Sans:400,400i,700,700i|Quattrocento:400,700|Spectral:400,400i,700,700i&amp;subset=latin-ext);
+
+.remark-slide-number {
+  visibility: hidden;
+}
+
+```
+
+```{r xaringanExtra, echo=FALSE}
+xaringanExtra::use_xaringan_extra(c("tile_view", "animate_css"))
+xaringanExtra::use_animate_css()
+xaringanExtra::use_animate_all("fade")
+```
+
+---
+
+class: title, shelf, no-footer, bottom
+
+![](images/800px-Sixsided_Dice_inJapan.jpg# w-40pct)
+
+# Probabilidade e Estatística
+
+## Introdução (cont.)
+
+---
+
+# Nesta aula
+
+.footer.tiny.center[Imagem da capa: https://commons.wikimedia.org/wiki/File:Sixsided_Dice_inJapan.jpg (CC-BY-SA)]
+
+--
+
+* Tipos e níveis de dados.
+
+--
+
+* Estatística descritiva $\times$ estatística inferencial.
+
+---
+
+# Tipos de dados
+
+--
+
+* Quantitativos: números representando quantidades.
+
+--
+
+* Qualitativos: atributos, rótulos, classes, etc. <br />(inclusive números usados com estas funções).
+
+---
+
+layout: true
+
+# Níveis de dados
+
+---
+
+--
+
+## Nominal (dados categóricos, ou .emph[fatores])
+
+--
+
+* Não queremos fazer cálculos com estes dados.
+--
+* Se cada indivíduo tem um valor diferente, é .emph[identificador].
+--
+* Cada valor que um fator pode assumir é um .emph[nível].
+--
+* Nomes, rótulos, classes, categorias, atributos etc.
+--
+* Números usados como rótulos (telefone, CPF, turma etc.)
+--
+* Verdadeiro ou falso, sim ou não.
+--
+* Apenas dados qualitativos.
+
+---
+
+## Ordinal
+
+--
+
+* Só queremos ordenar os dados. Nenhum outro cálculo.
+--
+* Classificações.
+--
+* Dados qualitativos ou quantitativos.
+
+---
+
+## Intervalar
+
+--
+
+* Além de ordenar, podemos calcular intervalos (subtrair).
+--
+* O zero é apenas uma posição na escala (não representa ausência).
+--
+* Datas, temperaturas etc.
+--
+* Apenas dados quantitativos.
+
+---
+
+## Racional
+
+--
+
+* Podemos calcular razões (dobro, metade etc.).
+--
+* O zero é natural (representa ausência).
+--
+* Quantias de dinheiro, contagens, durações etc.
+--
+* Apenas dados quantitativos.
+
+---
+
+layout: false
+
+# Exemplos
+
+--
+
+* Temperatura corporal ( ${}^\circ$C ) de um atleta ao longo do tempo.
+--
+.emph[Intervalar.]
+--
+
+* Frequência cardíaca (bpm) de um atleta ao longo do tempo.
+--
+.emph[Racional.]
+--
+
+* A classificação dos 5 filmes de maior bilheteria neste mês.
+--
+.emph[Ordinal.]
+--
+
+* Os gêneros dos filmes que você viu este mês.
+--
+.emph[Nominal.]
+--
+
+* Os números de telefone na lista de contatos do seu celular.
+--
+.emph[Nominal.]
+--
+
+* Precipitação média (mm) na sua cidade nos últimos 12 meses.
+--
+.emph[Racional.]
+--
+
+* Categoria da sua carteira de motorista.
+--
+.emph[Nominal.]
+
+---
+
+# Estatística descritiva $\times$ inferencial
+
+--
+
+* Descritiva: descrever, organizar, resumir, apresentar os dados.
+
+--
+
+* Inferencial: usar amostras para concluir sobre a(s) população(ões).
+
+---
+

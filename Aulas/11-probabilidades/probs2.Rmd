@@ -1,0 +1,508 @@
+---
+title: 'Probabilidades (cont.)'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '`r format(Sys.Date(), "%d/%m/%Y")`'
+lang: 'pt'
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little
+      ),
+      axis.line = element_blank(),           # No  axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Probabilidade da união de dois eventos
+
+## Exemplo: cães e gatos
+
+* Suponha que 25% das pessoas têm cachorro, 29% das pessoas têm gato, e 12% das pessoas têm cachorro e gato.
+
+* Qual a probabilidade de que uma pessoa tenha gato ou cachorro ou ambos?
+  $$
+  \begin{align*}
+  P(\text{cachorro } \cup \text{ gato}) 
+    &= P(\text{cachorro}) + P(\text{gato}) - P(\text{cachorro } \cap \text{ gato}) \\
+    &= 0.25 + 0.29 - 0.12 \\
+    &= 0.42
+  \end{align*}
+  $$
+
+
+## No geral
+
+$$
+\begin{align*}
+P(A_1 \cup A_2 \cup \cdots \cup A_n) &=
+  P(A_1) + P(A_2) + \cdots + P(A_n) \\
+  & - P(A_1 \cap A_2) - \cdots - P(A_{n-1} \cap A_n) \\
+  & + P(A_1 \cap A_2 \cap A_3) + \cdots + P(A_{n-2} \cap A_{n-1} \cap A_n) \\
+  & \cdots \\
+  & \pm P(A_1 \cap A_2 \cap \cdots \cap A_n )
+\end{align*}
+$$
+
+
+# Probabilidade condicional
+
+$$
+P(A \mid B) = \text{probabilidade de } A \text{ quando sabemos que } B \text{ ocorreu}
+$$
+
+## Exemplo: Titanic
+
+```{r tit}
+Titanic
+```
+
+```{r tit-flat}
+tit_tab <- Titanic %>% 
+  ftable(row.vars = 'Survived', col.vars = 'Class') %>% 
+  as.table() %>% 
+  addmargins()
+
+tit_tab
+```
+
+### Probabilidade de ser tripulante {-}
+
+```{r p-trip}
+tit_tab['Sum', 'Crew']
+tit_tab['Sum', 'Sum']
+ptrip <- tit_tab['Sum', 'Crew'] / tit_tab['Sum', 'Sum']
+ptrip
+```
+
+### Probabilidade de não ser tripulante {-}
+
+Uma maneira: $1 - P(\text{tripulante})$ 
+
+```{r p-n-trip}
+1 - ptrip
+```
+
+Outra maneira: probabilidade de ser passageiro de 1ª, 2ª ou 3ª classe
+
+```{r p-n-trip-2}
+ntrip <- tit_tab['Sum', c('1st', '2nd', '3rd')]
+ntrip
+tit_tab['Sum', 'Sum']
+sum(ntrip) / tit_tab['Sum', 'Sum']
+```
+
+### Probabilidade de sobreviver {-}
+
+```{r p-surv}
+tit_tab['Yes', 'Sum'] 
+tit_tab['Sum', 'Sum']
+tit_tab['Yes', 'Sum'] / tit_tab['Sum', 'Sum']
+```
+
+### Probabilidade de ser de primeira classe {-}
+
+```{r p-1st}
+tit_tab['Sum', '1st']
+tit_tab['Sum', 'Sum']
+tit_tab['Sum', '1st'] / tit_tab['Sum', 'Sum']
+```
+
+### Probabilidade de sobreviver *E* ser de primeira classe {-}
+
+::: {.rmdimportant}
+
+Queremos saber quantas pessoas, *do total de pessoas a bordo*, eram de primeira classe e sobreviveram.
+
+Isto é uma *probabilidade conjunta*.
+
+:::
+
+```{r p-1st-surv}
+tit_tab['Yes', '1st']
+tit_tab['Sum', 'Sum']
+tit_tab['Yes', '1st'] / tit_tab['Sum', 'Sum']
+```
+
+### Probabilidade de uma pessoa da primeira classe sobreviver {-}
+
+::: {.rmdimportant}
+
+Em outras palavras: qual a probabilidade de uma pessoa sobreviver, se a pessoa estava na primeira classe?
+
+Cuidado, agora.
+
+Já sabemos que a pessoa é da primeira classe. Logo, restringimos o universo a estas `r tit_tab['Sum', '1st']` pessoas.
+
+A pergunta é: quantas pessoas que atendem a *condição* de ser da 1ª classe sobreviveram?
+
+Isto é uma *probabilidade condicional*.
+
+:::
+
+```{r p-surv-given-1st}
+tit_tab['Yes', '1st']
+tit_tab['Sum', '1st'] 
+tit_tab['Yes', '1st'] / tit_tab['Sum', '1st'] 
+```
+
+Olhando para o cálculo acima, Perceba que 
+$$
+P(\text{sobreviveu} \mid \text{1ª classe} )
+$$
+é o mesmo que
+$$
+\frac{P(\text{sobreviveu} \cap \text{1ª classe})}{P(\text{1ª classe})}
+$$
+
+### Probabilidade de um sobrevivente ser da primeira classe {-}
+
+::: {.rmdimportant}
+
+No geral, $P(A \mid B) \neq P(B \mid A)$
+
+:::
+
+Agora, restringimos o universo às pessoas que sobreviveram. Dentre estas, quantas são da primeira classe?
+
+```{r p-1st-given-surv}
+tit_tab['Yes', '1st']
+tit_tab['Yes', 'Sum']
+tit_tab['Yes', '1st'] / tit_tab['Yes', 'Sum']
+```
+
+## No geral
+
+$$
+P(A \mid B) \quad=\quad \frac{P(A \cap B)}{P(B)}
+$$
+
+## Exercícios
+
+No Titanic,
+
+1. Qual a probabilidade de um tripulante sobreviver?
+
+1. Qual a probabilidade de um sobrevivente ser tripulante?
+
+1. Qual a probabilidade de um não-tripulante sobreviver?
+
+1. Qual a probabilidade de um sobrevivente não ser tripulante?
+ 
+
+# Probabilidade conjunta
+
+A fórmula para calcular $P(A \mid B)$ nos dá uma maneira de calcular $P(A \cap B)$:
+$$
+P(A \cap B) \quad=\quad P(A \mid B) \cdot P(B)
+$$
+ou, invertendo $A$ e $B$,
+$$
+P(A \cap B) \quad=\quad P(B \mid A) \cdot P(A)
+$$
+
+# Independência
+
+No vídeo anterior, vimos que, para dois eventos *independentes* $A$ e $B$, a probabilidade conjunta $P(A \cap B)$ é igual a $P(A) \cdot P(B)$.
+
+Olhando para as fórmulas acima para a probabilidade conjunta, se $A$ e $B$ forem independentes, então
+$$
+\begin{align*}
+P(A \cap B) &= P(A \mid B) \cdot P(B) \\
+            &= P(A) \cdot P(B)
+\end{align*}
+$$
+o que nos diz que
+$$
+P(A \mid B) = P(A)
+$$
+
+Da mesma forma,
+$$
+P(B \mid A) = P(B)
+$$
+
+Em palavras: saber que um dos eventos ocorreu não altera a probabilidade do outro evento.
+
+Esta é a definição formal de eventos independentes.
+
+## Exemplos
+
+### Estar na primeira classe e sobreviver são independentes? {-}
+
+* $P(\text{sobreviver} \mid \text{1ª classe})$:
+
+```{r sobr-given-1st}
+tit_tab['Yes', '1st']
+tit_tab['Sum', '1st']
+tit_tab['Yes', '1st'] / tit_tab['Sum', '1st']
+```
+
+* $P(\text{sobreviver})$:
+
+```{r p-sobreviver}
+tit_tab['Yes', 'Sum'] 
+tit_tab['Sum', 'Sum']
+tit_tab['Yes', 'Sum'] / tit_tab['Sum', 'Sum']
+```
+
+Não!
+
+### Faltas e turno de trabalho {-}
+
+Numa empresa: 
+
+* 75 funcionários trabalham no turno diurno, com um número de faltas de 3 por semana.
+
+* 25 funcionários trabalham no turno noturno, com um número de faltas de 1 por semana.
+
+Faltar é independente do turno de trabalho?
+
+```{r faltas}
+faltas <- array(
+  c(3, 1, 72, 24),
+  dim = c(2, 2),
+  dimnames = list(
+    'Turno' = c('Diurno', 'Noturno'),
+    'Presença' = c('Faltou', 'Presente')
+  )
+) %>% 
+  addmargins()
+
+faltas
+```
+
+* $P(\text{Faltou})$:
+
+```{r faltou}
+faltas['Sum', 'Faltou']
+faltas['Sum', 'Sum']
+faltas['Sum', 'Faltou'] / faltas['Sum', 'Sum']
+```
+
+* $P(\text{Faltou} \mid \text{Diurno})$:
+
+```{r faltou-dia}
+faltas['Diurno', 'Faltou']
+faltas['Diurno', 'Sum']
+faltas['Diurno', 'Faltou'] / faltas['Diurno', 'Sum']
+```
+
+* $P(\text{Faltou} \mid \text{Noturno})$:
+
+```{r faltou-noite}
+faltas['Noturno', 'Faltou']
+faltas['Noturno', 'Sum']
+faltas['Noturno', 'Faltou'] / faltas['Noturno', 'Sum']
+```
+
+Sim!
+
+
+# Teorema da probabilidade total
+
+## Exemplo
+
+Dentre 80 homens, 30 têm olhos azuis; dentre 50 mulheres, 20 têm olhos azuis. Neste grupo de pessoas, qual a probabilidade de ter olhos azuis?
+
+Como homens e mulheres formam uma *partição* deste grupo --- i.e., cada pessoa só pode ser homem ou mulher (não ambos) e cada pessoa precisa ser homem ou mulher.
+
+A probabilidade de ter olhos azuis vai ser
+$$
+\begin{align*}
+P(A) &= P(A \cap H) + P(A \cap M) \\
+     &= P(A \mid H) P(H) + P(A \mid M) P(M)
+\end{align*}
+$$
+onde
+
+* $A$ = ter olhos azuis
+* $H$ = ser homem
+* $M$ = ser mulher
+
+Então,
+$$
+\begin{align*}
+P(A) = \frac{30}{130} + \frac{20}{130} = \frac{50}{130} \approx 0.39
+\end{align*}
+$$
+ou, usando a segunda fórmula,
+$$
+\begin{align*}
+P(A) &= \frac{30}{80} \cdot \frac{80}{130} + \frac{20}{50} \cdot \frac{50}{130} \\
+     &= \frac{50}{130} \\
+     &\approx 0.39
+\end{align*}
+$$
+
+
+# Teorema de Bayes
+
+## Exemplo
+
+* De todos os emails, 60% são spam:
+$$
+P(\text{spam}) = 0.6
+$$
+
+* De todos os emails que são spam, 90% contêm a palavra "compre":
+$$
+P(\text{compre} \mid \text{spam}) = 0.9
+$$
+
+* De todos os emails (spam ou não), 70% contêm a palavra "compre":
+$$
+P(\text{compre}) = 0.7
+$$
+
+* Acabo de receber um email. Sem abri-lo, qual a probabilidade de ser spam? 
+
+  Bem, na ausência de informação adicional, $P(\text{spam}) = 0.6$.
+
+* Abri o email. Ele contém a palavra "compre". Agora, qual a probabilidade de ser spam?
+$$
+P(\text{spam} \mid \text{compre}) = ?
+$$
+
+* Lembre-se de que
+$$
+P(\text{compre} \cap \text{spam}) = P(\text{spam} \mid \text{compre}) \cdot P(\text{compre})
+$$
+
+* Mas também
+$$
+P(\text{compre} \cap \text{spam}) = P(\text{compre} \mid \text{spam}) \cdot P(\text{spam})
+$$
+
+* As duas expressões são iguais:
+$$
+P(\text{spam} \mid \text{compre}) \cdot P(\text{compre}) = P(\text{compre} \mid \text{spam}) \cdot P(\text{spam})
+$$
+
+* Daí, isolando o termo que queremos descobrir:
+$$
+P(\text{spam} \mid \text{compre}) = \frac{P(\text{compre} \mid \text{spam}) \cdot P(\text{spam})}{P(\text{compre})}
+$$
+
+* Substituindo os valores:
+$$
+P(\text{spam} \mid \text{compre}) = \frac{0.9 \cdot 0.6}{0.7} \approx 0.77
+$$
+
+
+## No geral
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+$$
+
+E se você não souber $P(B)$?
+
+Use o teorema da probabilidade total:
+$$
+P(B) = P(B \cap A_1) + P(B \cap A_2) + \cdots + P(B \cap A_n)
+$$
+onde os $A_i$ formam uma partição da população.
+
+Isto equivale a 
+$$P(B) = P(B \mid A_1)P(A_1) + P(B \mid A_2)P(A_2) + \cdots + P(B \mid A_n)P(A_n)$$
+
+
+## Outro exemplo
+
+* Uma doença afeta 5 pessoas em 100.000.
+
+* O exame que detecta a doença tem precisão de 99,9%; i.e., quando uma pessoa está doente, o exame dá positivo 99,9% das vezes.
+
+* Quando uma pessoa *não* está doente, o exame dá positivo 1% das vezes.
+
+* Você faz o exame, e o resultado é positivo. 
+
+* Qual a probabilidade de você ter a doença?
+
+* $P(D) = 0.00005$; daí, $P(ND) = 0.99995$.
+
+* $P(+ \mid D) = 0.999$; daí, $P(- \mid D) = 0.001$ (falso negativo).
+
+* $P(+ \mid ND) = 0.01$ (falso positivo); daí, $P(- \mid ND) = 0.99$
+
+* Não temos $P(+)$, mas podemos achar usando o teorema da probabilidade total:
+  $$
+  \begin{align*}
+  P(+) &= P(+ \cap D) \;+\; P(+ \cap ND) \\
+     &= P(+ \mid D)P(D) \;+\; P(+ \mid ND)P(ND) \\
+     &= 0.999 \cdot 0.00005 \;+\; 0.01 \cdot 0.99995 \\
+     &= 0.01004945
+  \end{align*}
+  $$
+
+* Queremos saber $P(D \mid +)$. Pelo teorema de Bayes:
+
+  $$
+  \begin{align*}
+    P(D \mid +) &= \frac{P(+ \mid D)P(D)}{P(+)} \\
+                &= \frac{0.999 \cdot 0.00005}{0.01004945} \\
+                &= 0.00497
+  \end{align*}
+  $$
+
+* A probabilidade de estar doente é menos do que 0,5%!
+

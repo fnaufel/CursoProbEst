@@ -1,0 +1,186 @@
+---
+title: 'Visualização (cont.)'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '`r format(Sys.Date(), "%d/%m/%Y")`'
+lang: 'pt'
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little
+      ),
+      axis.line = element_blank(),           # No  axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Dataset
+
+```{r sono}
+sono <- msleep %>% 
+  select(name, vore, order, sleep_total)
+```
+
+# Mediana e quartis
+
+```{r horas}
+horas <- sono %>% 
+  pull(sleep_total) %>% 
+  sort()
+
+horas
+```
+
+```{r len}
+length(horas)
+```
+
+```{r mediana1}
+horas[length(horas) / 2]
+```
+
+```{r mediana2}
+median(horas)
+```
+
+```{r quartis1}
+horas[
+  c(
+    length(horas) / 4,
+    length(horas) / 2,
+    3 * length(horas) / 4
+  )
+]
+```
+
+```{r quartis2}
+horas %>% quantile(c(.25, .5, .75))
+```
+
+```{r media}
+mean(horas)
+```
+
+```{r sumario}
+summary(horas)
+```
+
+# Boxplots
+
+```{r boxplot}
+sono %>% 
+  ggplot(aes(y = sleep_total)) +
+    geom_boxplot(fill = 'gray') +
+    scale_x_continuous(breaks = NULL) +
+    scale_y_continuous(breaks = seq(0, 20, 2))
+```
+
+```{r ogiva}
+sono %>% 
+  ggplot(aes(x = sleep_total)) +
+    geom_step(stat = 'ecdf') +
+    ylab(NULL)
+```
+
+```{r boxplots}
+sono %>% 
+  ggplot(aes(x = vore, y = sleep_total)) +
+    geom_boxplot(fill = 'gray') +
+    scale_y_continuous(breaks = seq(0, 20, 2))
+```
+
+```{r}
+sono %>% 
+  filter(vore == 'omni') %>% 
+  pull(sleep_total) %>% 
+  IQR()
+```
+
+```{r boxplots2}
+sono %>% 
+  ggplot(aes(x = vore, y = sleep_total)) +
+    geom_boxplot(fill = 'gray') +
+    scale_y_continuous(breaks = seq(0, 20, 2)) +
+    geom_point(color = 'blue', alpha = .3) +
+    stat_summary(
+      fun = mean, 
+      geom = 'point', 
+      color = 'red', 
+      shape = 'cross', 
+      size = 5,
+      stroke = 1
+    )
+```
+
+# Média $\times$ mediana
+
+```{r}
+receita <- tibble(
+  valor = c(1, 2, 2, 3.5, 1, 4, 1, 10000)
+)
+
+receita
+```
+
+```{r}
+summary(receita)
+```
+

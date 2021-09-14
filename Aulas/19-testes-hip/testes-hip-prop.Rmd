@@ -1,0 +1,601 @@
+---
+title: 'Testes de hipóteses para proporções'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: ' (v. `r format(Sys.Date(), "%d/%m/%Y")`)'
+lang: 'pt'
+# TODO: include LaTeX fields
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: styles.css
+    toc: true
+    toc_depth: 2
+    # toc_float: true
+    number_sections: true
+    fig_caption: true
+    df_print: paged
+    self_contained: true
+    code_download: true
+    # code_folding: show
+    # keep_md: true
+    # includes:
+    #   in_header: header.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+
+opts_chunk$set(
+  echo = TRUE, 
+  # collapse = TRUE,
+  # cache = TRUE,
+  out.width = "75%",
+  fig.align = 'center',
+  fig.width = 6,
+  fig.show = "hold"
+)
+
+options(dplyr.print_min = 6, dplyr.print_max = 6)
+
+# Supress crayon output
+options(crayon.enabled = FALSE)
+
+# Useful libraries
+library(glue)
+library(patchwork)
+library(latex2exp)
+library(kableExtra)
+
+# For nice dataframe summaries
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+# Tidy!
+library(tidyverse)
+
+# Sober theme for ggplot
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little 
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little 
+      ),
+      axis.line = element_blank(),           # No axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+# Avoid scientific notation and use a comma as decimal separator
+options(
+  scipen = 15,
+  OutDec = ','
+)
+
+# Format a number with thousand separators (default point)
+# and decimal comma enclosed in curly braces for LaTeX printing.
+# CAREFUL: if called outside math mode, will print the braces!
+fm <- function(x, big = '.', decimal = '{,}') {
+  if (!is.numeric(x)) {
+    x
+  } else {
+    prettyNum(x, big.mark = big, decimal.mark = decimal)
+  }
+
+}
+
+# To center the results of a chunk (image, video etc.)
+# Usage: 
+#         out.extra=center()
+#         
+center <- function(){
+  
+  if (is_html_output()) {
+    'class="center"'
+  }
+  
+}
+
+
+# To embed YT videos in HTML and the link (centered) in LaTeX
+embed_yt <- function(code) {
+
+  if (is_html_output()) {
+    include_url(
+      paste0(
+        'https://www.youtube.com/embed/',
+        code
+      )
+    )
+  } else {
+    cat(
+      paste0(
+        '```{=latex}\n',
+        '\\begin{center} \\url{https://youtu.be/',
+        code,
+        '} \\end{center}\n',
+        '```'
+      )
+    )
+  }
+  
+}
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Exemplo: proporção de bebês do sexo masculino { #ex1 }
+
+::: {.rmdbox}
+
+* Um [estudo de 1994 feito em Punjab, na Índia](https://www.bmj.com/content/309/6964/1259.full), relata que $56{,}9\%$ dos $550$ bebês nascidos em um ano em uma maternidade da região eram do sexo masculino.
+
+* Segundo estudos anteriores, $51{,}7\%$ dos bebês nascidos por ano nessa região são meninos.
+
+* Agora que a população tem acesso a exames que determinam o sexo do feto durante a gravidez, existem suspeitas de que fetos do sexo feminino estão sendo abortados pelos pais, por motivos culturais.
+
+* A evidência é suficiente para afirmar que a proporção de bebês meninos na maternidade do estudo é maior do que a proporção da região? 
+
+:::
+
+
+## Hipóteses
+
+* Um teste de hipóteses sempre vai ter [duas hipóteses]{.hl}.
+
+* A primeira hipótese é a apresentada como "padrão". Esta é a hipótese que vai ser "desafiada". O nome técnico para esta hipótese é [hipótese de nulidade]{.hl}, ou [hipótese nula]{.hl}. [A hipótese de nulidade sempre envolve uma igualdade.]{.hl} e costuma ser chamada $H_0$. No exemplo,
+  
+  $$
+  H_0 : p = 0{,}517
+  $$
+    
+  Ou seja, a proporção de meninos nascidos na maternidade do estudo é de $51{,}7\%$, como no restante da região.
+    
+* A segunda hipótese, chamada [hipótese alternativa]{.hl}, contradiz de alguma maneira a hipótese de nulidade. No exemplo, vamos trabalhar com
+  
+  $$
+  H_A : p > 0{,}517
+  $$
+    
+  Ou seja, a verdadeira proporção de meninos nascidos na maternidade do estudo é maior que $51{,}7\%$.
+  
+  
+## Condições
+
+* O teste de hipóteses também se baseia no TCL. 
+
+* Precisamos verificar as condições:
+
+  1. [Independência:]{.hl} os sexos dos bebês são independentes entre si? Vamos supor que sim.
+  
+  1. [Amostra aleatória e representativa:]{.hl} a amostra são os $550$ bebês nascidos na maternidade em questão. Não vamos poder generalizar nossas conclusões para outras maternidades, nem outras regiões. Na verdade, [a população consiste em todos os bebês nascidos nessa maternidade, nesse e em outros anos.]{.hl} Vamos supor que os números desse ano são compatíveis com os números de outros anos.
+  
+  1. [Tamanho da amostra:]{.hl} temos mais do que $30$ elementos, e a amostra é menor do que $10\%$ da população.
+  
+  1. [Quantidades de sucessos e fracassos potenciais:]{.hl} considerando meninos como sucesso, a hipótese de nulidade diz que deveria haver $550 \times 0{,}517 = `r (550 * .517) %>% fm()`$ sucessos e $550 \times 0{,}483 = `r (550 * .483) %>% fm()`$ fracassos na amostra, mais do que os $10$ exigidos.
+  
+
+## Valores
+
+```{r valores, echo=FALSE}
+n <- 550
+p_chapeu <- 0.569
+p0 <- 0.517
+ep <- sqrt(p0 * (1 - p0) / n)
+```
+
+* Tamanho da amostra: $n = 550$
+
+* Proporção amostral: $\hat p = `r p_chapeu %>% fm()`$
+
+* Hipótese de nulidade: $H_0 : p = 0{,}517$
+
+* Hipótese alternativa: $H_A : p > 0{,}517$
+
+* Nível de confiança: como com os intervalos de confiança, escolhemos $0{,}95$. Mas, em testes de hipóteses, trabalhamos com $1 - 0{,}95 = 0{,}05$ e chamamos este valor de [nível de significância, escrito $\alpha = 0{,}05$.]{.hl}
+
+
+## Estratégia
+
+* [Sempre começamos supondo que $H_0$ é verdadeira.]{.hl} No exemplo, isto significa supor que $p = 0{,}517$.
+
+* Com isso, [construímos a distribuição amostral de $\hat p$, que vai ter como média o valor suposto de $p$.]{.hl}
+
+* Usando esta distribuição amostral, [calculamos a probabilidade de obter uma amostra como a que obtivemos]{.hl} (com $\hat p = 0{,}569$) [ou mais extrema]{.hl} (com $\hat p > 0{,}569$).
+
+* [A probabilidade calculada é chamada de valor $p$.]{.hl}
+
+* [Se o valor $p$ for muito baixo]{.hl}, isto indica que, supondo $H_0$, [nossa amostra é muito improvável e serve como evidência contra $H_0$.]{.hl} Dizemos, então, que [rejeitamos $H_0$.]{.hl}
+
+* Se o valor $p$ for alto, isto indica que, supondo $H_0$, nossa amostra não tem nada de inesperado, e não é evidência contra $H_0$. Não podemos rejeitar $H_0$.
+
+* ["Baixo" ou "alto" são definidos em função do nível de significância $\alpha$.]{.hl}
+
+  
+## A distribuição amostral de $\hat p$, supondo $H_0$
+
+* Pelo TCL e supondo $H_0$, a distribuição amostral das proporções vai ser normal, com média $\mu = p = `r p0 %>% fm()`$ e erro padrão
+
+  $$
+  \sigma_{\hat p} 
+  = \sqrt{\frac{p(1-p)}{n}} 
+  = `r ep %>% fm()`
+  $$
+
+* Graficamente:
+
+    ```{r echo=FALSE}
+    p_min <- (p0 - .1) %>% round(1) 
+    p_max <- (p0 + .1) %>% round(1) 
+    brks <- c(p_min, p0, p0 + .1, p_chapeu, p_max)
+    
+    ggplot() +
+      stat_function(
+        fun = dnorm,
+        args = c(p0, ep),
+        xlim = c(p_min, p_max)
+      ) +
+      stat_function(
+        fun = dnorm,
+        args = c(p0, ep),
+        xlim = c(p_chapeu, p_max),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      scale_x_continuous(
+        breaks = brks
+      ) +
+      labs(
+        y = NULL
+      )
+    ```
+
+## O valor $p$ e a conclusão
+
+* O valor $p$ vai ser a probabilidade que corresponde à área em vermelho, que pode ser calculada em R:
+
+    ```{r}
+    <<valores>>
+    valor_p <- pnorm(p_chapeu, mean = p0, sd = ep, lower.tail = FALSE)
+    valor_p
+    ```
+
+* Este valor é muito menor do que $\alpha = 0{,}05$. [Logo, nossa amostra é evidência para rejeitar a hipótese de nulidade neste nível de significância]{.hl}. Concluímos que essa maternidade tem uma proporção de nascimentos de meninos maior do que $`r p0 %>% fm()`$, com $\alpha = 0{,}05$.
+
+* Outros níveis de significância usados na prática são $\alpha = 0{,}1$ (menos exigente) e $\alpha = 0{,}01$ (mais exigente). Em algumas áreas, como na Física, são usados níveis de significância mais exigentes ainda, como $\alpha = 0{,}0000003$ no [experimento que confirmou a existência do bóson de Higgs](https://medium.com/@chris.m.pease/the-higgs-boson-and-5-sigma-eec238b43f93).
+
+
+## Em R
+
+```{r}
+prop.test(
+  x = p_chapeu * n,          # número de sucessos
+  n = n,                     # tamanho da amostra
+  p = p0,                    # valor de p na hipótese de nulidade
+  alternative = 'greater',   # hipótese alternativa é p > p0
+  conf.level = .95,          # 1 - α (o default já é .95)
+  correct = FALSE            # sem correção de continuidade 
+)
+```
+
+
+# Exemplo: percepção extra-sensorial { #ex2 }
+
+::: {.rmdbox}
+
+* Um suposto vidente alega que consegue detectar os naipes de cartas colocadas viradas para baixo, diante dele, em uma mesa.
+
+* Em um experimento, um pesquisador apresenta ao suposto vidente $50$ cartas, escolhidas ao acaso dentre as cartas de $10$ baralhos, e o suposto vidente acerta o naipe de $10$ delas.
+
+* O pesquisador diz ao suposto vidente que ele teve *menos* acertos do que se ele tivesse adivinhado ao acaso: $50 \times 1/4 = `r (50/4) %>% fm()`$.
+
+* O suposto vidente diz que isso também é evidência dos seus poderes: os erros foram causados por "interferência", pois o suposto vidente estava captando informações sobre o naipe da carta, mas não conseguiu interpretá-las corretamente.
+
+:::
+
+
+## Hipóteses
+
+* A [hipótese de nulidade]{.hl} diz que o suposto vidente não tem poderes; a verdadeira proporção de acertos sempre vai ser, a princípio, $1/4$ da quantidade de cartas:
+
+  $$
+  p = 0{,}25
+  $$
+
+* A [hipótese alternativa]{.hl} reflete os argumentos do suposto vidente de que uma proporção significativamente maior ou significativamente menor do que $25\%$ indica a existência de poderes extra-sensoriais:
+
+  $$
+  p \neq 0{,}25
+  $$
+
+* A hipótese alternativa, agora, vai gerar um [teste bilateral]{.hl}.
+
+
+## Condições
+
+1. [Independência:]{.hl} Vamos supor que acertar o naipe de uma carta independe de acertar o naipe de outra carta. Por exemplo, podemos supor que a dificuldade de acertar o naipe de uma carta é sempre a mesma, independente da carta, da ordem em que elas aparecem etc. O fato de que as $50$ cartas foram escolhidas dentre $10$ baralhos ($520$ cartas, no total) nos permite considerar que os naipes das cartas escolhidas são independentes. Além disso, se não quisermos que o suposto vidente "conte" os naipes das cartas durante o experimento, podemos decidir só revelar os naipes das $50$ cartas *depois* que o suposto vidente tiver registrado seus palpites.
+  
+1. [Amostra aleatória e representativa:]{.hl} A população é o conjunto de todas as cartas que poderiam ser escolhidas para o suposto vidente poder exercer seus poderes. As $50$ cartas, escolhidas ao acaso, representam de forma adequada esta população.
+  
+1. [Tamanho da amostra:]{.hl} temos mais do que $30$ elementos, e a amostra é menor do que $10\%$ da população (que é infinita).
+  
+1. [Quantidades de sucessos e fracassos potenciais:]{.hl} a hipótese de nulidade diz que deveria haver $50 \times 1/4 = `r (50/4) %>% fm()`$ sucessos e $50 \times 3/4 = `r (50 * 3/4) %>% fm()`$ fracassos na amostra, mais do que os $10$ exigidos.
+
+
+## Valores
+
+```{r valores-2, echo=FALSE}
+sucessos <- 10
+n <- 50
+p0 <- 1/4
+p_chapeu <- sucessos / n
+ep <- sqrt(p0 * (1 - p0) / n)
+p_cauda_direita <- p0 + (p0 - p_chapeu)
+```
+
+* Tamanho da amostra: $n = 50$
+
+* Proporção amostral: $\hat p = `r p_chapeu %>% fm()`$
+
+* Hipótese de nulidade: $H_0 : p = `r p0 %>% fm()`$
+
+* Hipótese alternativa: $H_A : p \neq `r p0 %>% fm()`$
+
+* Nível de significância: $\alpha = 0{,}05$
+
+
+## Estratégia
+
+* Começamos supondo que $H_0$ é verdadeira: $p = `r p0 %>% fm()`$.
+
+* Com isso, construímos a distribuição amostral de $\hat p$, que vai ter como média o valor suposto de $p$.
+
+* Usando esta distribuição amostral, calculamos a probabilidade de obter uma amostra como a que obtivemos ou mais extrema (mais distante de $`r p0 %>% fm()`$).
+
+  
+## A distribuição amostral de $\hat p$, supondo $H_0$
+
+* Pelo TCL e supondo $H_0$, a distribuição amostral das proporções vai ser normal, com média $\mu = p = `r p0 %>% fm()`$ e erro padrão
+
+  $$
+  \sigma_{\hat p} 
+  = \sqrt{\frac{p(1-p)}{n}} 
+  = `r ep %>% fm()`
+  $$
+
+* Graficamente:
+
+    ```{r echo=FALSE}
+    p_min <- 0
+    p_max <- .5
+    brks <- c(p_min, p0, p_chapeu, p_cauda_direita, p_max)
+    
+    ggplot() +
+      stat_function(
+        fun = dnorm,
+        args = c(p0, ep),
+        xlim = c(p_min, p_max)
+      ) +
+      stat_function(
+        fun = dnorm,
+        args = c(p0, ep),
+        xlim = c(p_min, p_chapeu),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      stat_function(
+        fun = dnorm,
+        args = c(p0, ep),
+        xlim = c(p_cauda_direita, p_max),
+        fill = 'red',
+        alpha = .5,
+        geom = 'area'
+      ) +
+      scale_x_continuous(
+        breaks = brks
+      ) +
+      labs(
+        y = NULL
+      )
+    ```
+
+## O valor $p$ e a conclusão
+
+* O valor $p$ vai ser a probabilidade que corresponde à área em vermelho, que pode ser calculada em R:
+
+    ```{r}
+    <<valores-2>>
+    valor_p <- 
+      pnorm(p_chapeu, mean = p0, sd = ep) +
+      pnorm(p_cauda_direita, mean = p0, sd = ep, lower.tail = FALSE)
+    valor_p
+    ```
+
+* Este valor é maior do que $\alpha = 0{,}05$. [Logo, nossa amostra não é evidência para rejeitar a hipótese de nulidade neste nível de significância]{.hl}. 
+
+
+## Em R
+
+```{r}
+prop.test(
+  x = sucessos,              # número de sucessos
+  n = n,                     # tamanho da amostra
+  p = p0,                    # valor de p na hipótese de nulidade
+  alternative = 'two.sided', # hipótese alternativa é p != p0
+  conf.level = .95,          # 1 - α (o default já é .95)
+  correct = FALSE            # sem correção de continuidade 
+)
+```
+
+
+# Erros, poder e tamanho do efeito
+
+## Rejeitar $\times$ não rejeitar
+
+* Em um teste de hipóteses, [nada é provado]{.hl}.
+
+* Se o valor $p$ for [menor]{.hl} do que $\alpha$, você deve concluir que [existem evidências para rejeitar a hipótese de nulidade]{.hl}.
+
+* Se o valor $p$ for [maior]{.hl} do que $\alpha$, você deve concluir que [não existem evidências para rejeitar a hipótese de nulidade]{.hl}.
+
+* Seja como for, você deve incluir na sua conclusão
+
+  * As hipóteses.
+  
+  * O valor da estatística envolvida no teste (aqui, a proporção amostral).
+  
+  * O tamanho da amostra.
+  
+  * O valor de $\alpha$.
+  
+  * O valor $p$.
+  
+  * A informação de se o teste é unilateral ou bilateral.
+
+* Como nada é provado, [existe a possibilidade de acontecer um erro]{.hl}: 
+
+  * Você pode [rejeitar $H_0$ quando ela é verdadeira]{.hl}, ou 
+  
+  * Você pode [não rejeitar $H_0$ quando ela é falsa.]{.hl}
+
+
+## Erro tipo 1: rejeitar quando não devíamos
+
+* Falso positivo.
+
+* Diagnosticar como doente um paciente saudável.
+
+* Condenar um réu inocente.
+
+* [Um erro tipo $1$ só acontece quando a hipótese de nulidade é verdadeira.]{.hl}
+
+* A probabilidade de um erro tipo $1$ acontecer é a probabilidade de a nossa amostra ser uma amostra "ruim".
+
+* Mas a probabilidade de a amostra ser ruim é exatamente $\alpha$.
+
+* Então, [a probabilidade de um erro tipo $1$ é sempre igual a $\alpha$.]{.hl}
+
+
+## Erro tipo 2: não rejeitar quando devíamos
+
+* Falso negativo.
+
+* Diagnosticar como saudável um paciente doente.
+
+* Absolver um réu culpado.
+
+* [Um erro tipo $2$ só acontece quando a hipótese de nulidade é falsa.]{.hl}
+
+* Qual a probabilidade de um erro tipo $2$ acontecer? Vamos chamar esta probabilidade de $\beta$.
+
+* É difícil calcular $\beta$, porque a hipótese alternativa não fixa um valor para o parâmetro sendo testado; então, não sabemos qual distribuição amostral usar.
+
+* A probabilidade $\beta$ de um erro tipo $2$ diminui à medida que $\alpha$ aumenta.
+
+* Um $\alpha$ maior torna mais difícil rejeitar a hipótese de nulidade.
+
+
+## Poder de um teste
+
+* O "melhor" resultado do teste é [rejeitar $H_0$ quando ela é falsa]{.hl}.
+
+* Isto acontece com probabilidade $1 - \beta$.
+
+* Este é o [poder (ou potência)]{.hl} do teste: [a capacidade de detectar a diferença entre o valor do parâmetro em $H_0$ e o valor verdadeiro do parâmetro.]{.hl}
+
+* Mas não é uma boa idéia aumentar $\alpha$ para aumentar o poder, pois isto aumenta a chance de um erro tipo $1$.
+
+* A melhor maneira de diminuir $\alpha$ e $\beta$ ao mesmo tempo é [aumentando o tamanho da amostra.]{.hl}
+
+* Podemos calcular o tamanho da amostra necessário para que o poder do teste tenha um certo valor, mas isto depende de mais informação.
+
+
+## O tamanho do efeito
+
+* Diferença entre o valor do parâmetro em $H_0$ e o valor verdadeiro do parâmetro.
+
+* Efeitos maiores são mais fáceis de detectar.
+
+* Efeitos menores são mais difíceis de detectar.
+
+* [O poder de um teste também depende do tamanho do efeito.]{.hl}
+
+
+## Explorando tudo interativamente
+
+* https://rpsychologist.com/d3/nhst/
+
+
+# Exercícios
+
+## Usando `binom.test`
+
+* No [exemplo dos bebês](#ex1), calcule a *quantidade* de nascimentos de meninos na amostra. O que há de estranho?
+
+* A função `binom.test`, de R base, também faz teste de hipótese para a proporção (embora usando um algoritmo diferente do nosso). Rode o seguinte código:
+
+    ```{r eval=FALSE}
+    binom.test(
+      x = p_chapeu * n,          # número de sucessos
+      n = n,                     # tamanho da amostra
+      p = p0,                    # valor de p na hipótese de nulidade
+      alternative = 'greater',   # hipótese alternativa é p > p0
+      conf.level = .95           # 1 - α
+    )
+    ```
+
+  O que dá errado? Por quê? Como consertar?
+
+
+## Outro suposto vidente
+
+* O [experimento do exemplo](#ex2) é repetido com outra pessoa, que acerta o naipe de $17$ das $50$ cartas. Refaça o teste de hipóteses com este novo valor, de duas maneiras:
+
+  1. Com um teste bilateral: $H_A : p \neq 0{,}25$.
+  
+  1. Com um teste unilateral: $H_A : p > 0{,}25$.
+
+* Quais as suas conclusões?
+
+
+
+<div style='height: 1000px;'></div>
+

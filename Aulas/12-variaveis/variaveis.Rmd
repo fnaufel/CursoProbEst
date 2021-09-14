@@ -1,0 +1,582 @@
+---
+title: 'Variáveis aleatórias'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '19/10/2020<br />(modificado em `r format(Sys.Date(), "%d/%m/%Y")`)'
+lang: 'pt'
+# TODO: include LaTeX fields
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    df_print: kable
+    self_contained: true
+    # code_folding: show
+    # keep_md: true
+    # includes:
+    #   in_header: header.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+
+#library()
+library(gt)
+
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little 
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little 
+      ),
+      axis.line = element_blank(),           # No axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Variáveis aleatórias
+
+* Uma variável aleatória é uma maneira de associar a cada resultado do espaço amostral um *número real*. 
+
+* Dependendo do conjunto de números, a variável aleatória pode ser *discreta* ou *contínua*.
+
+* Falamos sobre a *probabilidade* de uma variável aleatória assumir um valor (ou uma faixa de valores).
+
+# Exemplos
+
+## Lançar dois dados
+
+* Definimos $X = \text{soma dos resultados dos dois dados}$.
+
+* Esta é uma variável aleatória *discreta*, com $11$ valores possíveis.
+
+* Tabela completa = distribuição de probabilidade:
+
+```{r dados-distr}
+dados_distr <- expand.grid(1:6, 1:6) %>% 
+  mutate(
+    x = Var1 + Var2
+  ) %>% 
+  group_by(x) %>% 
+  summarize(
+    'P(X = x)' = paste(n(), 36, sep = '/'),
+    num = n() / 36,
+    .groups = 'drop'
+  )
+
+dados_distr %>% 
+  gt()
+```
+
+* Graficamente:
+
+```{r dados-plot}
+dados_distr %>% 
+  ggplot(aes(x = x, y = num)) +
+    geom_col(width = .01, color = 'blue') +
+    scale_x_continuous(breaks = 2:12) +
+    labs(
+      title = 'X = soma dos resultados de 2 dados',
+      y = 'P(X = x)'
+    )
+```
+
+* Qual a probabilidade de conseguir 10 ou mais?
+
+```{r prob-10-ou-mais}
+dados_distr %>% 
+  filter(x >= 10) %>% 
+  summarize(p = sum(num))
+```
+
+* Qual a probabilidade de conseguir entre 6 e 8, inclusive?
+
+```{r prob-6-a-8}
+dados_distr %>% 
+  filter(x >= 6 & x <= 8) %>% 
+  summarize(p = sum(num))
+```
+
+## Altura de um homem adulto
+
+* Definimos $X = \text{estatura em metros de um homem brasileiro adulto, escolhido ao acaso}$.
+
+* Esta é uma variável aleatória *contínua*, com um número *infinito não-enumerável* de valores.
+
+* Segundo o [Levantamento do Perfil Antropométrico da População Brasileira Usuária do Transporte Aéreo Nacional](https://www2.anac.gov.br/arquivos/pdf/Relatorio_Final_Projeto_Conhecer.pdf), em 2009, a estatura média do homem brasileiro adulto era de 1,73m, com desvio padrão de 0,07m.
+
+* Vamos simular uma amostra de muitos homens desta população:
+
+```{r homens}
+media <- 1.73
+desvio <- 0.07
+homens <- tibble(
+  altura = rnorm(1e5, mean = media, sd = desvio)
+)
+```
+
+* Gráfico com as percentagens:
+
+```{r homens-plot}
+homens_plot <- homens %>% 
+  ggplot(aes(x = altura)) +
+    geom_histogram(
+      aes(y = after_stat(density)),
+      breaks = seq(1.4, 2, 0.01)
+    ) +
+    scale_x_continuous(breaks = seq(1.4, 2.0, .1)) +
+    labs(
+      title = 'Altura de um homem brasileiro adulto',
+      x = 'metros',
+      y = '%'
+    )
+
+homens_plot
+```
+
+* Com a distribuição normal:
+
+```{r homens-normal}
+homens_normal <- homens_plot +
+  stat_function(
+    fun = dnorm, 
+    args = list(
+      'mean' = media,
+      'sd' = desvio
+    ),
+    geom = 'line',
+    color = 'red'
+  ) +
+  labs(
+    subtitle = paste0('com N(', media, ', ', desvio,') em vermelho')
+  )
+
+homens_normal
+```
+
+* A curva vermelha no gráfico é a *função de densidade de probabilidade* da distribuição normal, dada por
+$$
+\text{fdp}(x) = {\frac {1}{\sigma {\sqrt {2\pi }}}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}}
+$$
+
+
+::: {.rmdimportant}
+
+Em uma distribuição contínua, *não faz sentido* perguntar o valor de $P(X = x)$. Como $X$ pode assumir uma quantidade infinita não-enumerável de valores, esta probabilidade é igual a zero!
+
+Com uma distribuição contínua, vamos sempre perguntar sobre *faixas de valores*.
+
+:::
+
+* Qual a probabilidade de um homem ter mais de 1,80m?
+
+  * Na amostra:
+  
+    ```{r maior180}
+    mean(homens$altura > 1.80)
+    ```
+  
+  * Na distribuição teórica:
+  
+    ```{r maior180-t}
+    pnorm(1.80, mean = media, sd = desvio, lower.tail = FALSE)
+    ```
+  
+  * Gráfico:
+  
+    ```{r maior180-plot}
+    homens_normal +
+      stat_function(
+        fun = dnorm, 
+        args = list(
+          'mean' = media,
+          'sd' = desvio
+        ),
+        geom = 'area',
+        fill = 'yellow',
+        alpha = .4,
+        xlim = c(1.8, 2.1)
+      )
+    ```
+  
+* Qual a probabilidade de um homem ter entre 1,60m e 1,70m?
+
+  * Na amostra:
+  
+    ```{r entre}
+    mean(homens$altura > 1.60 & homens$altura < 1.70)
+    ```
+  
+  * Na distribuição teórica:
+  
+    ```{r entre-t}
+    pnorm(1.70, mean = media, sd = desvio) -
+    pnorm(1.60, mean = media, sd = desvio)
+    ```
+
+  * Gráfico  
+  
+    ```{r entre-plot}
+    homens_normal +
+      stat_function(
+        fun = dnorm, 
+        args = list(
+          'mean' = media,
+          'sd' = desvio
+        ),
+        geom = 'area',
+        fill = 'yellow',
+        alpha = .4,
+        xlim = c(1.6, 1.7)
+      )
+    ```  
+
+# Valor esperado
+
+* O *valor esperado* (ou *esperança matemática*) de uma variável aleatória é a média ponderada dos valores possíveis da variável, considerando as probabilidades (ou, no caso contínuo, a *densidade* de probabilidade) como pesos.
+
+* Caso discreto:
+  $$
+  \mu = E(X) = \sum_i x_i \cdot P(X = x_i)
+  $$
+
+* Caso contínuo:
+  $$
+  \mu = E(X) = \int_{-\infty}^{+\infty} x \cdot \text{fdp}(x) dx
+  $$
+
+## Lançar dois dados
+
+```{r e-dados}
+dados_distr %>% 
+  summarize(E = sum(x * num))
+```
+
+## Lançar um dado
+
+```{r e-1-dado}
+lado <- 1:6
+p <- 1/6
+sum(lado * p)
+```
+
+## Altura de um homem adulto
+
+* Estimando pela média da amostra:
+
+```{r e-altura}
+mean(homens$altura)
+```
+
+* Se $X$ é normalmente distribuída, i.e., $X \sim \mathcal{N}(\mu, \sigma)$, então $E(X) = \mu$, que é o valor de
+$$
+\int_{-\infty}^{+\infty} x \cdot {\frac {1}{\sigma {\sqrt {2\pi }}}}e^{-{\frac {1}{2}}\left({\frac {x-\mu }{\sigma }}\right)^{2}} dx
+$$
+
+## Propriedades do valor esperado
+
+* O valor esperado de uma constante é ela mesma:
+$$
+E(c) = c
+$$
+
+* Somar uma constante a $X$ altera $E(X)$ pelo valor da constante:
+$$
+E(X \pm c) = E(X) \pm c
+$$
+
+* Multiplicar $X$ por uma constante multiplica $E(X)$ pelo valor da constante:
+$$
+E(c \cdot X) = c \cdot E(X)
+$$
+
+* O valor esperado da soma (resp. diferença) de duas variáveis aleatórias é a soma (resp. diferença) dos valores esperados:
+$$
+E(X \pm Y) = E(X) \pm E(Y)
+$$
+
+* O valor esperado de uma função $f(X)$ de uma variável aleatória $X$ é
+
+  * Caso discreto:
+    $$
+    E(f(X)) = \sum_i f(x_i) \cdot P(X = x_i)
+    $$
+  
+  * Caso contínuo:
+    $$
+    E(f(X)) = \int_{-\infty}^{+\infty} f(x) \cdot \text{fdp}(x) dx
+    $$
+
+
+# Variância
+
+* A variância de uma variável aleatória $X$ é a média ponderada dos desvios quadrados, com as probabilidades como peso.
+
+  * Caso discreto:
+    $$
+    \sigma^2(X) = \sum_i (x_i - \mu)^2 \cdot P(X = x_i)
+    $$
+    
+  * Caso contínuo:
+    $$
+    \sigma^2(X) = \int_{-\infty}^{+\infty} (x - \mu)^2 \cdot \text{fdp}(x) dx
+    $$
+
+* Em qualquer caso,
+  $$
+  \begin{align*}
+    \sigma^2(X) &= E[(X - \mu)^2]\\
+                &= E(X^2) - [E(X)]^2
+  \end{align*}
+  $$
+  Faça as contas, partindo de $E[(X - \mu)^2]$ e usando as propriedades do valor esperado para chegar a $E(X^2) - [E(X)]^2$. 
+
+
+## Lançar dois dados
+
+```{r s2-dados}
+dados_distr %>% 
+  summarize(s2 = sum((x - 7)^2 * num))
+```
+
+## Lançar um dado
+
+```{r s2-1-dado}
+lado <- 1:6
+p <- 1/6
+sum((lado - 3.5)^2 * p)
+```
+
+## Altura de um homem adulto
+
+* Estimando pela variância da amostra:
+
+```{r s2-altura}
+N <- length(homens$altura)
+var(homens$altura) * (N - 1) / N
+```
+
+* Se $X$ é normalmente distribuída, i.e., $X \sim \mathcal{N}(\mu, \sigma)$, então $\sigma^2(X) = \sigma^2$. De acordo com o estudo, $\sigma^2 = 0.07^2 = `r 0.07^2`$.
+
+
+## Propriedades da variância
+
+* A variância de uma constante é zero:
+$$
+\sigma^2(c) = 0
+$$
+
+* Somar uma constante a $X$ não altera a variância:
+$$
+\sigma^2(X \pm c) = \sigma^2(X)
+$$
+
+* Multiplicar $X$ por uma constante multiplica a variância pelo quadrado da constante:
+$$
+\sigma^2(c \cdot X) = c^2 \cdot \sigma^2(X)
+$$
+
+* A variância da soma ou diferença de duas variáveis aleatórias é a soma das variâncias:
+$$
+\sigma^2(X \pm Y) = \sigma^2(X) + \sigma^2(Y)
+$$
+
+::: {.rmdimportant}
+
+### Quê? {-}
+
+Variância significa incerteza. 
+
+Considere o seguinte exemplo para entender por que $\sigma^2(X - Y) = \sigma^2(X) + \sigma^2(Y)$:
+
+* Você compra uma caixa de 500g de cereal no mercado. Como o peso não é exato, considere que $X$ é a variável aleatória que representa o peso do cereal na caixa, com $\mu_X = 500g$ e uma variância qualquer $\sigma^2_X$ (que corresponde à incerteza do processo de embalagem do cereal na fábrica).
+
+* Você decide comer 100g de cereal, despejando 1/5 do conteúdo na caixa em uma caneca. Como sua capacidade de medir 100g não é exata, considere que $Y$ é a variável aleatória que representa o peso do cereal na caneca, com $\mu_Y = 100\text{g}$ e uma variância qualquer $\sigma^2_Y$ (que corresponde à incerteza do seu processo de pesar 100g).
+
+* Considere a variável aleatória $Z = X - Y$, que representa a quantidade de cereal que sobrou na caixa. 
+
+  * Certamente a média $\mu_Z = \mu_X - \mu_Y = 400\text{g}$.
+  
+  * E a variância $\sigma^2_Z$? O fato de $Z$ ser o resultado da subtração de duas variáveis aleatórias diminui a incerteza? Ou a composição de incertezas (ainda que em uma subtração de medidas incertas) aumenta a incerteza?
+
+:::
+
+
+
+# Mais exemplos
+
+## Seguradora
+
+* Você tem uma seguradora, com 1000 segurados, cada um deles pagando 50 dinheiros por ano.
+
+* Por ano, 1 dos 1000 segurados morre. Neste caso, sua seguradora deve pagar 10.000 dinheiros.
+
+* Por ano, 2 dos 1000 segurados ficam inválidos. Neste caso, sua seguradora deve pagar 5.000 dinheiros.
+
+* Quanto sua seguradora espera ter de lucro (ou prejuízo) por segurado?
+
+  * Chamando de $X$ a variável aleatória que representa o dinheiro pago pela seguradora por apólice, temos
+    $$
+    \begin{align*}
+    P(X = 10.000) &= 1/1000\\
+    P(X = 5.000)  &= 2/1000\\
+    P(X = 0)      &= 997/1000
+    \end{align*}
+    $$
+    
+  * Daí, 
+   $$
+   \begin{align*}
+   E(X) &= 10000 \cdot \frac{1}{1000} \;+\; 5000 \cdot \frac{2}{1000} \;+\; 0 \cdot \frac{997}{1000} \\
+        &= 20
+   \end{align*}
+   $$
+
+  * Como cada segurado paga 50 dinheiros, sua seguradora lucra, em média, 30 dinheiros por apólice.
+  
+* E o desvio padrão?
+
+  * Calculando a variância antes:
+    $$
+     \begin{align*}
+     \sigma^2(X) &= (10000 - 20)^2 \cdot \frac{1}{1000} \;+\; (5000 -20)^2 \cdot \frac{2}{1000} \;+\; (0 - 20)^2 \cdot \frac{997}{1000} \\
+          &= 9980^2 \cdot \frac{1}{1000} \;+\; 4980^2 \cdot \frac{2}{1000} \;+\; (- 20)^2 \cdot \frac{997}{1000} \\
+          &= 149600
+     \end{align*}
+    $$
+    
+  * O desvio padrão é a raiz quadrada de $\sigma^2$:
+    $$
+    \sigma = 386,78
+    $$
+
+## Gerador de números aleatórios
+
+* Você programa um gerador de números aleatórios $x \in [1, 3] \subset \mathbb{R}$.
+
+* Considere $X$ a variável aleatória que representa os números gerados.
+
+* $X$ é uma variável aleatória contínua, com fdp
+  $$
+  f(x) = 
+    \begin{cases}
+      \frac{1}{2} & \text{se } x \in [1, 3] \\
+      0 & \text{se } x \not\in [1, 3]
+    \end{cases}
+  $$
+  cujo gráfico é
+  ```{r unif}
+  ggplot() +
+    stat_function(
+      fun = dunif,
+      args = c(1, 3),
+      xlim = c(0, 4),
+      geom = 'step',
+      color = 'blue',
+    ) +
+    labs(
+      y = NULL,
+      x = 'X'
+    )
+  ```
+
+* Isto significa que a *densidade* de probabilidade está distribuída uniformemente no intervalo $[1, 3]$.
+
+* Vamos calcular $E(X)$:
+$$
+\begin{align*}
+E(X) 
+  &= \int_{-\infty}^{+ \infty} x \cdot f(x) dx \\
+  &= \int_{1}^{3} x \cdot \frac{1}{2} dx \\
+  &= \frac12 \cdot \left.\frac{x^2}{2} \right|_1^3 \\
+  &= 2
+\end{align*}
+$$
+  
+* Ou seja, a média dos números gerados, depois de muitas execuções, vai ser 2.
+
+* Vamos calcular $\sigma^2(X)$:
+$$
+\begin{align*}
+\sigma^2(X) 
+  &= \int_{-\infty}^{+ \infty} (x - 2)^2 \cdot f(x) dx \\
+  &= \int_{1}^{3} (x-2)^2 \cdot \frac{1}{2} dx \\
+  &= \frac13
+\end{align*}
+$$
+
+* Isto vai dar um desvio padrão $\sigma = \sqrt{\sigma^2} = \frac{\sqrt{3}}{3} \approx `r round(sqrt(3)/3, 2)`$.
+
+* Mas R tem este gerador! Vamos gerar muitos valores e calcular a média e o desvio padrão:
+
+```{r unif13}
+valores <- runif(n = 1e6, min = 1, max = 3)
+mean(valores)
+sd(valores)
+```
+
+* Como exercício, verifique que, para qualquer variável aleatória contínua $X$ distribuída uniformemente entre $a$ e $b$, i.e., com fdp
+  $$
+  f(x) = 
+    \begin{cases}
+      \frac{1}{b - a} & \text{se } x \in [a, b] \\
+      0 & \text{se } x \not\in [a, b]
+    \end{cases}
+  $$
+  ocorre que
+  
+  * $E(X) = \frac{a+b}{2}$
+  
+  * $\sigma^2(X) = \frac{(a - b)^2}{12}$
+
+
+<div style="height: 1000px"></div>

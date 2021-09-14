@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Intro</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="fnaufel" />
+    <meta name="date" content="2020-08-25" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <link href="libs/tile-view-0.0.18.9000/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.0.18.9000/tile-view.js"></script>
+    <link href="libs/animate.css-3.7.2/animate.xaringan.css" rel="stylesheet" />
+    <link href="libs/animate.css-xaringan-3.7.2/animate.fade.css" rel="stylesheet" />
+    <!-- Uncomment below for network versions of jQuery and smartify: -->
+    <!-- <script -->
+    <!-- 			  src="https://code.jquery.com/jquery-3.4.1.slim.min.js" -->
+    <!-- 			  integrity="sha256-pasqAKBDmFT4eHoN2ndd6lN370kFiGUFyTiUHWhU7k8=" -->
+    <!-- 			  crossorigin="anonymous"> -->
+    <!-- </script> -->
+    <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/fnaufel/smartify/smartify.min.js"></script> -->
+    
+    <!-- Uncomment below for local versions of jQuery and smartify: -->
+    <script src="/home/fnaufel/Xaringan/js/jquery-3.4.1.slim.min.js"></script>
+    <script type="text/javascript" src="/home/fnaufel/Xaringan/js/smartify.min.js"></script>
+    <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/general.css" type="text/css" />
+    <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/jetbrains-font.css" type="text/css" />
+    <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/apron.css" type="text/css" />
+    <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/descartes.css" type="text/css" />
+    <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/adirondack.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+class: title, shelf, no-footer, bottom
+
+
+
+
+&lt;style type="text/css"&gt;
+@import url(https://fonts.googleapis.com/css?family=Quattrocento+Sans:400,400i,700,700i|Quattrocento:400,700|Spectral:400,400i,700,700i&amp;amp;subset=latin-ext);
+
+# .remark-slide-number {
+#   visibility: hidden;
+# }
+
+&lt;/style&gt;
+
+
+
+
+![](images/800px-Sixsided_Dice_inJapan.jpg# w-40pct)
+
+# Probabilidade e Estatística
+
+## Introdução
+
+---
+
+# Nesta aula
+
+.footer.tiny.center[Imagem da capa: https://commons.wikimedia.org/wiki/File:Sixsided_Dice_inJapan.jpg (CC-BY-SA)]
+
+--
+
+* Estatística: o quê? Para quê?
+  
+--
+
+* População `\(\times\)` amostra.
+
+--
+
+* Parâmetro `\(\times\)` estatística.
+
+--
+
+* Planejamento de um estudo estatístico.
+
+--
+
+* Técnicas de amostragem.
+
+---
+
+# Estatística: o quê? Para quê?
+
+--
+
+* Variação
+--
+: .emph[qual a altura de um homem brasileiro?]
+--
+* Incerteza
+--
+: .emph[qual o naipe da carta que está virada para baixo na mesa?]
+--
+* Correlação
+--
+: .emph[o nível de instrução está ligado ao consumo de [chocolate](http://pn.bmj.com/content/practneurol/13/1/63/F1.large.jpg)?]
+--
+* Causação
+--
+: .emph[o nível de instrução é causado pelo consumo de chocolate?]
+--
+* Observação
+--
+: .emph[pessoas que fumam mais vivem menos?]
+--
+* Experimentação
+--
+: .emph[ratos expostos a mais nicotina vivem menos?]
+--
+* Descrição e visualização
+--
+: .emph[altura média do homem brasileiro? Mediana? Desvio padrão?]
+--
+* Exploração
+--
+: .emph[análise exploratória de dados (EDA)]
+--
+* Previsão (inferência)
+--
+: .emph[que conclusões podemos tirar a respeito de possíveis novos casos?]
+
+---
+
+.h-60pct.t-20pct.l-20pct.w-60pct.absolute.center[
+![](./images/correlation-pt-600.png)
+
+http://xkcd.com/552/
+]
+
+---
+
+# População `\(\times\)` amostra
+
+--
+
+* População: .emph[todos] os indivíduos, resultados, respostas ou medições.
+
+--
+
+* Amostra: um .emph[subconjunto] da população.
+--
+
+  - Representativa: boa para tirar conclusões sobre a população.
+--
+  
+  - Aleatória: escolhida ao acaso.
+
+---
+
+# Parâmetro `\(\times\)` estatística
+
+--
+
+* Parâmetro: um número característico da .emph[população].
+
+--
+
+* Estatística: um número característico da .emph[amostra].
+
+---
+
+layout: true
+
+# Planejamento de um estudo estatístico
+
+---
+
+--
+
+1. Identificar a população e as variáveis de interesse.
+--
+
+1. Planejar a coleta de dados (inclusive escolha da amostra).
+--
+
+1. Coletar os dados.
+--
+
+1. Descrever e explorar os dados coletados; formular hipóteses.
+--
+
+1. Interpretar os dados, testar hipóteses, inferir conclusões sobre a população.
+--
+
+1. Identificar possíveis erros.
+
+---
+
+--
+
+## Estudo observacional
+
+--
+
+* Observar.
+--
+* Medir.
+--
+* Não modificar as condições existentes.
+
+--
+
+## Estudo experimental (experimento)
+
+--
+
+* Indivíduos são .emph[unidades experimentais].
+--
+* .emph[Grupo de tratamento] sofre uma intervenção.
+--
+* .emph[Grupo de controle] não sofre intervenção (ou recebe um .emph[placebo]).
+--
+* Comparar respostas entre os grupos.
+
+---
+
+--
+
+## Coleta de dados
+
+--
+
+* Observação: contagem, medição, etc.
+--
+* Simulação: usar modelo físico, matemático ou computacional.
+--
+  - Exemplo: simular lançamento de dados em um computador.
+--
+  - Exemplo: simular acidente de carros com bonecos.
+--
+* Pesquisa: perguntas, questionários, telefonemas.
+--
+  - Cuidado com perguntas tendenciosas.
+--
+  - Cuidado com seleção tendenciosa de indivíduos.
+--
+  - Exemplo: telefonemas só atingem quem tem telefone!
+  
+---
+
+--
+
+## Possíveis problemas
+
+--
+
+* .emph[Tamanho da amostra]: deve ser grande o bastante.
+--
+* .emph[Efeito placebo]: indivíduo reage a tratamento que não recebeu.
+--
+* .emph[Efeito Hawthorne]: indivíduo muda comportamento só porque está participando de experimento.
+--
+* .emph[Variáveis de confusão]: fatores ocultos provocam correlação entre variáveis observadas.
+--
+  - Exemplo: o .emph[aumento na quantidade de assaltos] na praia está correlacionada com o .emph[aumento na venda de sorvetes].
+--
+  - Na verdade, o .emph[aumento da temperatura] causa as duas coisas. &lt;br /&gt;A temperatura é uma variável de confusão.
+
+---
+
+--
+
+## Técnicas
+
+--
+
+* .emph[Cegamento]: indivíduo não sabe se está recebendo tratamento ou placebo.
+--
+* .emph[Duplo cegamento]: indivíduo *e pesquisador* não sabem quem está recebendo tratamento e quem está recebendo placebo.
+--
+* .emph[Aleatorização]: os indivíduos de cada grupo (controle e tratamento) são escolhidos ao acaso.
+--
+  - A idéia é que os grupos só vão diferir no tratamento.
+--
+  - A aleatorização pode não ser total.
+--
+  - Exemplo: mesma quantidade de homens e mulheres em cada grupo.
+  
+---
+
+layout: true
+
+# Técnicas de amostragem
+
+---
+
+--
+
+* .emph[Censo]: examina toda a população.
+
+--
+
+* .emph[Amostragem]: examina parte da população.
+
+--
+
+* Amostra .emph[representativa] `\(\times\)` amostra .emph[tendenciosa].
+
+--
+
+* Amostragem .emph[aleatória]: todos os elementos da população têm a mesma chance de ser escolhidos.
+
+--
+
+* Amostragem .emph[com reposição]: o mesmo elemento da população pode aparecer mais de uma vez na amostra.
+
+--
+
+* Amostragem .emph[sem reposição]: não.
+
+---
+
+--
+
+## Amostragem estratificada
+
+--
+
+* Cada segmento (estrato) da população é representado na amostra.
+
+--
+
+* De cada estrato, é selecionada uma amostra aleatória.
+
+--
+
+* As amostras devem ter tamanhos proporcionais aos tamanhos dos estratos.
+
+---
+
+layout: false
+class: center
+
+![](images/Stratified_sampling.png# w-50pct)
+
+.footer.tiny[https://en.wikipedia.org/wiki/File:Stratified_sampling.PNG (CC-BY-SA)]
+
+---
+
+layout: true
+
+# Técnicas de amostragem
+
+---
+
+## Amostragem por conglomerado
+
+--
+
+* Existem subgrupos na população.
+
+--
+
+* Os subgrupos são semelhantes.
+
+--
+
+* Escolhemos um ou mais subgrupos para representar a população.
+
+---
+
+layout: false
+class: center
+
+![](images/Cluster_sampling.png# w-50pct)
+
+.footer.tiny[https://en.wikipedia.org/wiki/File:Cluster_sampling.PNG (CC-BY-SA)]
+
+---
+
+layout: true
+
+# Técnicas de amostragem
+
+---
+
+## Amostragem sistemática
+
+--
+
+* Dividir a população em grupos.
+
+--
+
+* Quantidade de grupos `\(=\)` tamanho da amostra.
+
+--
+
+* Sortear um número aleatório `\(n \leq\)` tamanho do grupo.
+
+--
+
+* Escolher o `\(n\)`-ésimo elemento de cada grupo.
+
+---
+
+class: center
+layout: false
+
+![](images/Systematic_sampling.png)
+
+.footer.tiny[https://en.wikipedia.org/wiki/File:Systematic_sampling.PNG (CC-BY-SA)]
+
+---
+
+layout: true
+
+# Técnicas de amostragem
+
+---
+
+## Amostragem por conveniência
+
+--
+
+* Escolher elementos que são mais acessíveis.
+
+--
+
+* Costuma gerar amostras tendenciosas.
+
+---
+
+## Mais informações
+
+.center[
+    [https://en.wikipedia.org/wiki/Sampling_(statistics)](https://en.wikipedia.org/wiki/Sampling_(statistics&amp;#41;)
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="file:///home/fnaufel/Xaringan/js/remark-latest.min.js"></script>
+<script src="file:///home/fnaufel/Xaringan/js/macros.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+<script type="text/javascript">
+  smartify();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

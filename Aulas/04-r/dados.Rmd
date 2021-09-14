@@ -1,0 +1,122 @@
+---
+title: "Introdução a R (cont.)"
+subtitle: "Ciência de dados 😜"
+author: "fnaufel"
+date: "(modificado em `r Sys.Date()`)"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup}
+library(tidyverse)
+```
+
+
+# Fonte
+
+(Baseado em Garrett Grolemund, *Hands-On Programming With R: Write Your Own Functions and Simulations*.)
+
+
+# Lançar dados
+
+Criar um dado de 6 lados:
+
+```{r criar-dado}
+(dado <- 1:6)
+```
+
+Lançar este dado uma vez:
+
+```{r lancar-1}
+sample(dado, 1)
+```
+
+Definir número de lançamentos:
+
+```{r def-n}
+n <- 6
+```
+
+Lançar o dado `r n` vezes:
+
+```{r lancar-n}
+sample(dado, n, replace = TRUE)
+```
+
+# Uma função para retornar a soma de 2 dados
+
+```{r soma-2-dados}
+
+lancar2 <- function() {
+  
+  dado <- 1:6
+  lancamentos <- sample(dado, size = 2, replace = TRUE)
+  sum(lancamentos)
+  
+}
+
+```
+
+```{r lancar-2-dados}
+lancar2()
+```
+
+## Generalizar a função
+
+O número de lados do dado é passado como argumento.
+
+A quantidade de dados é passada como argumento.
+
+```{r lancar-n-dados-k-lados}
+lancar <- function(n = 2, k = 6) {
+  
+  dado <- 1:k
+  lancamentos <- sample(dado, size = n, replace = TRUE)
+  sum(lancamentos)
+  
+}
+```
+
+```{r lancar-sem-arg}
+lancar()
+```
+
+```{r lancar-4-10}
+lancar(n = 4, k = 10)
+```
+
+
+## Replicar muitas vezes
+
+```{r repl}
+resultados <- replicate(1e4, lancar())
+```
+
+# Visualização
+
+```{r qplot}
+qplot(resultados, bins = 11)
+```
+
+
+# Dados viciados
+
+```{r viciados}
+lancar <- function(qtde = 2, lados = 6, probs = rep(1/lados, lados)) {
+  dado <- 1:lados
+  resultados <- sample(dado, size = qtde, replace = TRUE, prob = probs)
+  sum(resultados)
+}
+```
+
+```{r lancar-viciados}
+resultados <- replicate(1e4, lancar(probs = c(1/2, rep(1/10, 5))))
+```
+
+```{r plot-viciados}
+qplot(resultados, bins = 11)
+```
+

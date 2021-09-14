@@ -1,0 +1,309 @@
+---
+title: 'Visualização (cont.)'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '`r format(Sys.Date(), "%d/%m/%Y")`'
+lang: 'pt'
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+
+# library(gt)
+
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little
+      ),
+      axis.line = element_blank(),           # No  axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Gráficos de barras e de colunas
+
+## Dataset
+
+```{r tabelas}
+HairEyeColor
+```
+
+```{r df}
+df_orig <- as.data.frame(HairEyeColor) %>% 
+  uncount(Freq) %>% 
+  as_tibble()
+
+df_orig %>% dfSummary() %>% print(method = 'render')
+```
+
+```{r traducao}
+cabelo <- c(
+  'Brown' = 'Castanhos',
+  'Blond' = 'Louros',
+  'Black' = 'Pretos',
+  'Red' = 'Ruivos'
+)
+
+olhos <- c(
+  'Brown' = 'Castanhos',
+  'Blue' = 'Azuis',
+  'Hazel' = 'Avelã',
+  'Green' = 'Verdes'
+)
+
+sexo <- c(
+  'Male' = 'Homem',
+  'Female' = 'Mulher'
+)
+
+df <- df_orig %>% 
+  transmute(
+    Cabelos = cabelo[Hair],
+    Olhos = olhos[Eye],
+    Sexo = sexo[Sex]
+  )
+
+```
+
+```{r sumario-df}
+df %>% dfSummary() %>% print(method = 'render')
+```
+
+```{r bar}
+df %>% 
+  ggplot(aes(x = Cabelos)) +
+    geom_bar()
+```
+
+```{r bar-ordenado}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos))) +
+    geom_bar()
+```
+
+```{r bar-stacked}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Sexo)) +
+    geom_bar()
+```
+
+```{r bar-novas-cores}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Sexo)) +
+    geom_bar() +
+    scale_fill_discrete(type = c('blue', 'red'))
+```
+
+```{r bar-flip}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Sexo)) +
+    geom_bar() +
+    scale_fill_discrete(type = c('blue', 'red')) +
+    coord_flip()
+```
+
+```{r bar-dodge}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Sexo)) +
+    geom_bar(position = 'dodge') +
+    scale_fill_discrete(type = c('blue', 'red'))
+```
+
+
+```{r bar-olhos}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Olhos)) +
+    geom_bar() +
+    scale_fill_discrete(type = c('#908050', 'blue', 'brown', 'green'))
+```
+
+```{r bar-olhos-dodge}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Olhos)) +
+    geom_bar(position = 'dodge') +
+    scale_fill_discrete(type = c('#908050', 'blue', 'brown', 'green'))
+```
+
+
+```{r bar-facet}
+df %>% 
+  ggplot(aes(x = fct_infreq(Cabelos), fill = Olhos)) +
+    geom_bar(position = 'dodge') +
+    scale_fill_discrete(type = c('#908050', 'blue', 'brown', 'green')) +
+    facet_wrap(~Sexo) +
+    labs(
+      title = 'Cores de cabelos e olhos por sexo',
+      y = NULL,
+      x = 'Cabelos'
+    )
+```
+
+```{r por-cabelo}
+df %>% 
+  ggplot(aes(x = Sexo, fill = fct_infreq(Olhos))) +
+    geom_bar(position = 'dodge') +
+    facet_wrap(~Cabelos, labeller = label_both) +
+    scale_fill_discrete(type = c('brown', 'blue', '#908050', 'green')) +
+    labs(
+      x = NULL,
+      y = NULL,
+      fill = 'Olhos',
+      title = 'Cor dos olhos e sexo por cor dos cabelos'
+    )
+```
+
+## *Dataframe* já contendo os totais
+
+```{r df_tot}
+df_tot <- df %>% 
+  count(Sexo, Cabelos, Olhos)
+
+df_tot
+```
+
+```{r geom_col}
+df_tot %>% 
+  ggplot(aes(x = Cabelos, y = n)) +
+    geom_col()
+```
+
+
+# Gráficos de linha e séries temporais
+
+## Dataset
+
+```{r fones}
+fones <- WorldPhones %>% 
+  as_tibble(rownames = 'Ano') %>% 
+  mutate(Ano = as.numeric(Ano))
+
+fones
+```
+
+```{r long}
+fones_long <- fones %>% 
+  pivot_longer(
+    cols = -Ano,
+    names_to = 'Região',
+    values_to = 'n'
+  )
+
+fones_long
+```
+
+```{r line}
+fones_long %>% 
+  ggplot(aes(x = Ano, y = n, group = Região, color = Região)) +
+    geom_line() +
+    scale_x_continuous(breaks = 1951:1961)
+```
+
+```{r line-cores-ordem}
+fones_long %>% 
+  ggplot(
+      aes(
+        x = Ano, 
+        y = n, 
+        group = Região, 
+        color = fct_rev(fct_reorder(Região, n))
+      )
+  ) +
+    geom_line() +
+    scale_x_continuous(breaks = 1951:1961) +
+    labs(
+      color = 'Região',
+      y = '',
+      x = NULL,
+      title = 'Quantidade de aparelhos de telefone por ano, por região'
+    )
+```
+
+```{r line2}
+fones_long %>%
+  filter(Região %in% c('S.Amer', 'Oceania')) %>% 
+  ggplot(aes(x = Ano, y = n, group = Região, color = Região)) +
+    geom_line() +
+    scale_x_continuous(breaks = 1951:1961)
+```
+
+```{r}
+library(tsibble)
+?`tsibble-package`
+```
+
+
+# Referências sobre visualização e R
+
+Todos os livros abaixo estão disponíveis, com acesso livre, na internet.
+
+## Em português
+
+* Sillas Gonzaga, *Introdução a R para Visualização e Apresentação de Dados*,
+http://sillasgonzaga.com/material/curso_visualizacao/index.html
+
+* Allan Vieira de Castro Quadros, *Introdução à Análise de Dados em R utilizando Tidyverse*, https://allanvc.github.io/book_IADR-T/
+
+* Paulo Felipe de Oliveira, Saulo Guerra, Robert McDonnel, *Ciência de Dados com R – Introdução*, https://cdr.ibpad.com.br/index.html
+
+* Curso R, *Ciência de Dados em R*, https://livro.curso-r.com/
+
+
+## Em inglês
+
+* Chester Ismay, Albert Y. Kim, *A ModernDive into R and the Tidyverse*, https://moderndive.com/
+
+* Garrett Grolemund, Hadley Wickham, *R for Data Science*, https://r4ds.had.co.nz/

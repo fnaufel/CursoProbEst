@@ -1,0 +1,256 @@
+---
+title: "Introdução a R"
+author: "fnaufel"
+date: "3/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Usando o RStudio
+
+Leia uma introdução ao R e ao RStudio no livro [Ciência de Dados com R](https://www.ibpad.com.br/o-que-fazemos/publicacoes/introducao-ciencia-de-dados-com-r).
+
+Ali, você vai encontrar *exemplos* e **exercícios**.
+
+# RMarkdown
+
+Para ver uma referência sobre a sintaxe do RMarkdown, vá ao menu `Help` do RStudio, escolha `Cheatsheets` e, 
+a seguir, `R Markdown Cheat Sheet` ou `R Markdown Reference Guide`.
+
+# R
+
+## Apresentação
+
+R é várias linguagens em uma:
+
+* R base
+
+* OO (S3)
+
+* OO (S4)
+
+* Tidyverse (ciência de dados e gráficos)
+
+## Tudo é vetor
+
+Usamos a função `c()` (*concatenate*) para criar vetores:
+
+```{r}
+vetor <- c(1, 2, 4, 7, 0, -1)
+vetor
+```
+
+Em um vetor, todos os elementos precisam ser do mesmo tipo.
+
+Mesmo que você use `c(c(...), c(...))`, o vetor criado vai ter um único nível. 
+*Não existem vetores aninhados*.
+
+```{r}
+v1 <- c(1, 2)
+v2 <- c(3, 4, 5)
+v3 <- c(v1, v2)
+v3
+```
+
+Outras maneiras de criar vetores:
+
+```{r}
+1:10
+```
+
+```{r}
+10:1
+```
+
+```{r}
+0.5:10.5
+```
+
+```{r}
+0.5:10
+```
+
+```{r}
+seq(1, 10)
+```
+
+```{r}
+seq(10, 1)
+```
+
+```{r}
+seq(1, 10, 0.5)
+```
+
+```{r}
+rep(1, 10)
+```
+
+```{r}
+rep(c(1, 2), 10)
+```
+
+```{r}
+rep(c(1, 2), each = 10)
+```
+
+```{r}
+rep(c(1, 2), c(3, 4))
+```
+
+O número que aparece na saída, entre colchetes, é o índice do primeiro elemento
+daquela linha:
+
+```{r}
+rep(1, 1000)
+```
+
+Vetores começam no índice 1!!!!
+
+Tudo é vetor:
+
+```{r}
+10
+```
+
+```{r}
+is.vector(10)
+```
+
+```{r}
+length(10)
+```
+
+O valor `NA` significa ausência de informação:
+
+```{r}
+notas <- c(10, 8, NA, 7, 10)
+notas
+```
+
+## Operações com vetores
+
+```{r}
+v1
+v2
+```
+
+```{r}
+v3 <- c(10, 20)
+```
+
+```{r}
+v1 + v3
+```
+
+```{r}
+v1
+v2
+```
+
+```{r}
+v1 + v2
+```
+
+R recicla o vetor mais curto.
+
+```{r}
+v1 <- c(1, 2)
+v4 <- c(3, 4, 5, 6, 7, 8)
+v1 + v4
+```
+
+Funções úteis para vetores:
+
+```{r}
+sum(v4)
+```
+
+```{r}
+notas
+```
+
+```{r}
+sum(notas)
+```
+
+```{r}
+sum(notas, na.rm = TRUE)
+```
+
+```{r}
+mean(notas, na.rm = TRUE)
+```
+
+```{r}
+sum(notas, na.rm = TRUE) / 4
+```
+
+## Indexação
+
+```{r}
+v5 <- 1:50 * 4
+v5
+```
+
+```{r}
+v5[10]
+```
+
+```{r}
+v5[1:10]
+```
+
+```{r}
+v5[c(2, 10, 13, 30)]
+```
+
+```{r}
+v5[seq(2, 50, 2)]
+```
+
+```{r}
+v4
+```
+
+```{r}
+v4[c(TRUE, TRUE, FALSE, FALSE, TRUE, FALSE)]
+```
+
+```{r}
+v4 > 5
+```
+
+```{r}
+v4[ v4 > 5 ]
+```
+
+```{r}
+v4[ v4 %% 2 != 0 ]
+```
+
+```{r}
+notas[!is.na(notas)]
+```
+
+```{r}
+v5
+```
+
+```{r}
+v5[2:50]
+```
+
+```{r}
+v5[-1]
+```
+
+```{r}
+v5[-c(1, 4, 20)]
+```
+
+
+

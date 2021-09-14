@@ -1,0 +1,722 @@
+---
+title: 'Distribuições discretas'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '28/10/2020<br />(modificado em `r format(Sys.Date(), "%d/%m/%Y")`)'
+lang: 'pt'
+# TODO: include LaTeX fields
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 2
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    df_print: kable
+    self_contained: true
+    # code_folding: show
+    # keep_md: true
+    # includes:
+      # in_header: ./mathjax_config.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  fig.align = 'center'
+)
+
+#library()
+
+# For nice tables
+library(gt)
+
+# For nice dataframe summaries
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+# Tidy!
+library(tidyverse)
+
+# Sober theme for ggplot
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little 
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little 
+      ),
+      axis.line = element_blank(),           # No axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+# Avoid scientific notation and use a comma as decimal separator
+options(
+  scipen = 30,
+  OutDec = ','
+)
+
+# Format a number with thousand separators (default point)
+# and decimal comma enclosed in curly braces for LaTeX printing.
+# CAREFUL: if called outside math mode, will print the braces!
+fm <- function(x, big = '.', decimal = '{,}') {
+  if (!is.numeric(x)) {
+    x
+  } else {
+    prettyNum(x, big.mark = big, decimal.mark = decimal)
+  }
+
+}
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+
+```
+
+
+```{r plot-distr, echo=FALSE}
+grafico <- function (
+  tabela,   # Um tibble com colunas X e p
+  titulo,
+  extra = NULL
+) {
+  
+  g <- tabela %>% 
+    ggplot() +
+      geom_col(
+        aes(x = X, y = p),
+        width = .1, 
+        fill = 'blue',
+        color = 'blue'
+      ) +
+    labs(
+      title = titulo,
+      y = NULL
+    )
+  
+  if (is.null(extra))
+    g
+  else
+    g + extra
+  
+}
+```
+
+
+
+# Binomial
+
+## Exemplo: *spam* novamente
+
+* Vamos mudar para um mundo onde a probabilidade de uma mensagem qualquer *não* ser *spam* é $p = 0{,}3$ .
+
+* Agora, vamos mudar o experimento: ao recebermos $n = 10$ mensagens, quantas não são *spam*?
+
+* A variável aleatória $X$ é o número de sucessos (não *spam*) em $n = 10$ mensagens.
+
+* Suporte $\{ 0, 1, 2, \ldots, 10 \}$
+
+* Parâmetros:
+
+  * $p$ é a probabilidade de sucesso (não *spam*).
+  
+  * $n$ é o número total de mensagens.
+  
+* Distribuição: $\text{Binom}(X \mid n = 10, p = 0{,}3)$.
+
+* Qual a probabilidade de haver $4$ mensagens não *spam*? As mensagens são independentes. O resultado vai envolver:
+
+  * A probabilidade de $4$ mensagens não serem *spam*: $(0{,}3)^4$.
+  
+  * A probabilidade de $6$ mensagens serem *spam*: $(1 - 0{,}3)^6$.
+  
+  * A quantidade de ordenações diferentes destas $10$ mensagens: ${10 \choose 4} = \frac{10!}{4!6!} = `r choose(10, 4)`$. 
+
+  * O resultado é
+
+$$
+\begin{align*}
+\text{Binom}(X = 4 \mid n = 10,\; p = 0{,}3) 
+  &= {10 \choose 4} \cdot (0{,}3)^4 \cdot (1 - 0{,}3)^6 \\
+  &= `r dbinom(4, 10, 0.3) %>% fm()`
+\end{align*}
+$$
+
+* Gráfico:
+
+```{r binom-plot, echo=FALSE}
+p_nao_spam <- .3
+size <- 10
+x <- 0:size
+
+spam <- tibble(
+  X = x,
+  p = dbinom(X, size, p_nao_spam)
+)
+
+grafico(
+  spam, 
+  paste0('Binom( X | n = ', size, ', p = ', p_nao_spam, ')'),
+  scale_x_continuous(breaks = 0:10)
+)
+```
+
+## No geral
+
+* $X$ conta a quantidade de sucessos em um número fixo $n$ de provas de Bernoulli.
+
+* As provas de Bernoulli são independentes e têm probabilidade fixa de sucesso $p$.
+
+* $\text{Binom}(X = x \mid n, p) = {n \choose x} \cdot p^x \cdot (1 - p)^{n - x}$
+
+* $x \in \{ 0, 1, 2, \ldots, n\}$
+
+* Valor esperado:
+
+  * Na verdade, $X$ é a soma de $n$ variáveis aleatórias independentes $X_1, \ldots, X_n$, cada uma delas com distribuição de Bernoulli com probabilidade de sucesso $p$ (e valor esperado $p$):
+  
+$$
+  \begin{align*}
+    E(X) &= E(X_1 + \cdots + X_n) \\ 
+         &= E(X_1) + \cdots + E(X_n) \\
+         &= p + \cdots + p \\
+         &= np
+  \end{align*}
+$$
+  
+* Variância:
+
+  * Como as variáveis $X_1, \ldots, X_n$ são independentes, a variância da soma é a soma das variâncias:
+
+$$
+  \begin{align*}
+    \sigma^2(X) &= \sigma^2(X_1 + \cdots + X_n) \\ 
+         &= \sigma^2(X_1) + \cdots + \sigma^2(X_n) \\
+         &= p(1-p) + \cdots + p(1-p) \\
+         &= np(1-p)
+  \end{align*}
+$$
+
+
+## Em R
+
+### Função de distribuição de probabilidade: $\text{Binom}(X = x \mid n, p)$ 
+
+```{r grafico-dbinom, echo=FALSE}
+n <- 10
+x <- 0:n
+p_sucesso <- .3
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', n, ', p = ', p_sucesso, ' )'),
+  scale_x_continuous(breaks = 0:10)
+) +
+  geom_col(
+    data = tabela %>% filter(X == 4),
+    aes(X, p),
+    color = 'red',
+    fill = 'red',
+    width = .1
+  ) +
+  labs(
+    subtitle = paste(
+      'Em vermelho, dbinom(4, 10, 0.3) =', 
+      dbinom(4, n, p_sucesso) %>% round(3)
+    )
+  )
+```
+
+* `dbinom(x, size, prob)`
+
+* Voltando à Mega-Sena: para uma única pessoa, jogar é uma prova de Bernoulli, com probabilidade de sucesso de $1/50.063.860 = `r 1/50063860`$. Se você jogar $6$ números $10$ mil vezes --- duas vezes por semana, durante quase $100$ anos --- sua probabilidade de ganhar exatamente duas vezes é
+
+```{r sena-binom}
+p <- 1/50063860
+vezes <- 1e4
+dbinom(2, vezes, p)
+```
+
+* O gráfico desta distribuição é
+
+```{r grafico-sena-binom, echo=FALSE}
+n <- 1e4
+x <- 0:n
+p_sucesso <- 1/50063860
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', fm(n), ', p = ', p_sucesso, ' )')
+) 
+
+```
+
+* A probabilidade de jogar $10$ mil vezes e obter zero sucessos é
+
+```{r zero-sucessos}
+dbinom(0, n, p_sucesso)
+```
+
+### Função de distribuição acumulada: $\text{Binom}(X \leq q \mid n, p)$
+
+```{r grafico-pbinom, echo=FALSE}
+n <- 10
+x <- 0:n
+p_sucesso <- .3
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', n, ', p = ', p_sucesso, ' )'),
+  scale_x_continuous(breaks = 0:10)
+) +
+  geom_col(
+    data = tabela %>% filter(X <= 4),
+    aes(X, p),
+    color = 'red',
+    fill = 'red',
+    width = .1
+  ) +
+  labs(
+    subtitle = paste(
+      'Em vermelho, pbinom(4, 10, 0.3) =', 
+      pbinom(4, n, p_sucesso) %>% round(3)
+    )
+  )
+```
+
+* `pbinom(q, size, prob, lower.tail = TRUE)`
+
+* Se você passar `lower.tail = FALSE`, a probabilidade calculada é $P(X>q \mid \text{size}, \text{prob})$.
+
+```{r grafico-pbinom-right, echo=FALSE}
+n <- 10
+x <- 0:n
+p_sucesso <- .3
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', n, ', p = ', p_sucesso, ' )'),
+  scale_x_continuous(breaks = 0:10)
+) +
+  geom_col(
+    data = tabela %>% filter(X > 4),
+    aes(X, p),
+    color = 'red',
+    fill = 'red',
+    width = .1
+  ) +
+  labs(
+    subtitle = paste(
+      'Em vermelho, pbinom(4, 0.3, lower.tail = FALSE) =', 
+      pbinom(4, n, p_sucesso, lower.tail = FALSE ) %>% round(3)
+    )
+  )
+```
+
+### Função quantil: dado um valor de $\text{Binom}(X \leq x \mid n, p)$, então $x = ?$
+
+```{r grafico-qbinom, echo=FALSE}
+n <- 10
+x <- 0:n
+p_sucesso <- .3
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', n, ', p = ', p_sucesso, ' )'),
+  scale_x_continuous(breaks = 0:10)
+) +
+  geom_col(
+    data = tabela %>% filter(X <= 4),
+    aes(X, p),
+    color = 'red',
+    fill = 'red',
+    width = .1
+  ) +
+  labs(
+    subtitle = paste(
+      'A área em vermelho é', 
+      pbinom(4, n, p_sucesso) %>% round(3)
+    )
+  ) +
+  geom_text(
+    mapping = aes(4, -.04, label = 'qbinom(0.85, 10, 0.3) = 4'),
+    color = 'red',
+    size = 5
+  ) +
+  geom_segment(
+    mapping = aes(
+      x = 4, 
+      y = -.005, 
+      xend = 4, 
+      yend = -.025
+    ),
+    color = 'red'
+  )
+
+```
+
+* `qbinom(p, size, prob)`
+
+* Se você passar `lower.tail = FALSE`, o quantil calculado é $q$ tal que $P(X > q \mid \text{size}, \text{prob}) = p$:
+
+```{r grafico-qbinom-right, echo=FALSE}
+n <- 10
+x <- 0:n
+p_sucesso <- .3
+
+tabela <- tibble(
+  X = x,
+  p = dbinom(X, n, p_sucesso)
+)
+
+grafico(
+  tabela, 
+  paste0('Binom( X | n = ', n, ', p = ', p_sucesso, ' )'),
+  scale_x_continuous(breaks = 0:10)
+) +
+  geom_col(
+    data = tabela %>% filter(X > 4),
+    aes(X, p),
+    color = 'red',
+    fill = 'red',
+    width = .1
+  ) +
+  labs(
+    subtitle = paste(
+      'A área em vermelho é', 
+      pbinom(4, n, p_sucesso, lower.tail = FALSE) %>% round(3)
+    )
+  ) +
+  geom_text(
+    mapping = aes(4, -.04, label = 'qbinom(0.15, 10, 0.3, lower.tail = FALSE) = 4'),
+    color = 'red',
+    size = 5
+  ) +
+  geom_segment(
+    mapping = aes(
+      x = 4, 
+      y = -.005, 
+      xend = 4, 
+      yend = -.025
+    ),
+    color = 'red'
+  )
+
+```
+
+### Geração de números aleatórios
+
+* `rbinom(n, size, prob)` retorna um vetor de `n` valores sorteados de uma distribuição $\text{Binom}(X \mid \text{size}, \text{prob})$.
+
+* Vamos simular $100$ vezes o experimento de abrir $10$ mensagens e contar quantas delas não são *spam*:
+
+```{r spam-sim-binom}
+amostra <- rbinom(100, 10, .3)
+amostra
+```
+
+* Média:
+
+```{r media-spam-binom}
+mean(amostra)
+```
+
+* Finalmente, vamos simular $100$ mil pessoas, cada uma jogando $10$ mil jogos da Mega-Sena e ver quantas ganharam pelo menos uma vez:
+
+```{r sena-sim-binom}
+n <- 1e5
+p <- 1/50063860
+size <- 1e4
+
+resultados <- rbinom(n, size, p)
+head(resultados, 1000)
+```
+
+```{r alguem-ganhou}
+ganhadores <- resultados[resultados > 0]
+ganhadores
+length(ganhadores)
+```
+
+# Poisson
+
+## Exemplo
+
+* Em um caixa de um pequeno mercado, o número de clientes que chegam por minuto é, em média, $4$. 
+
+* Vamos representar este número pela variável aleatória $X$, com suporte $\{ 0, 1, 2, 3, \ldots \}$.
+
+* As chegadas dos clientes são independentes umas das outras.
+
+* Se você dividir o tempo em intervalos menores do que um minuto, a média se mantém: $2$ clientes a cada $30$ segundos, $1$ cliente a cada $15$ segundos etc.
+
+* Clientes diferentes não chegam ao caixa no mesmo instante.
+
+* Com estas condições, e chamando o número médio de $\lambda = 4$, a probabilidade de que $10$ clientes cheguem ao caixa em um período de um minuto é dada por
+
+$$
+\begin{align*}
+P(X = 10) &= \text{Poisson}(X = 10 \mid \lambda = 4) \\
+          &= \frac{\lambda^{10}}{10!}e^{-\lambda} \\
+          &= \frac{4^{10}}{10!}e^{-4} \\
+          &= `r dpois(10, 4) %>% fm()`
+\end{align*}
+$$
+
+* A probabilidade de que o caixa fique vazio durante um minuto inteiro é
+
+$$
+\begin{align*}
+P(X = 10) &= \text{Poisson}(X = 0 \mid \lambda = 4) \\
+          &= \frac{\lambda^{0}}{0!}e^{-\lambda} \\
+          &= \frac{4^{0}}{0!}e^{-4} \\
+          &= `r dpois(0, 4) %>% fm()`
+\end{align*}
+$$
+
+* O gráfico (até $X = 20$) é
+
+```{r pois-mercado, echo=FALSE}
+x <- 0:20
+lambda <- 4
+
+tabela <- tibble(
+  X = x,
+  p = dpois(X, lambda)
+)
+
+tabela %>% 
+  grafico(
+    'Poisson( X | λ = 4 )'
+  )
+```
+
+
+
+## No geral
+
+* A distribuição de Poisson é um bom modelo para situações em que a variável aleatória $X$ conta o número de ocorrências de algum fenômeno em um intervalo de tempo fixo (ou em uma área ou volume de espaço): 
+
+  * Carros passando em um cruzamento em uma hora,
+  
+  * Chamadas telefônicas chegando por minuto a uma central,
+  
+  * Partículas alfa emitidas por minuto por $1$Kg de um material radioativo,
+  
+  * Casos de uma doença detectados em cada Km$^2$ de uma cidade,
+  
+  * Erros de impressão por página em livros produzidos por uma editora.
+  
+* Teoricamente, $P(X=x)$ é maior que zero para qualquer $x$ natural; no mundo real, existem valores máximos que estas variáveis aleatórias podem assumir. Ainda assim, esta distribuição é uma boa aproximação. Por exemplo, a probabilidade de $40$ ou mais clientes chegarem ao nosso caixa de mercado em um minuto é de $`r ppois(39, 4, lower.tail = FALSE) %>% fm()`$.
+
+* O valor esperado $E(X)$ e a variância $\sigma^2(X)$ são iguais a $\lambda$.
+
+
+## Em R
+
+### Exercício
+
+Seguindo o estilo das explicações sobre a [distribuição geométrica](#em-r-2) e a [distribuição binomial](#em-r-3):
+
+1. Gere gráficos com exemplos do uso de `dpois`.
+
+1. Gere gráficos com exemplos do uso de `ppois`.
+
+1. Gere gráficos com exemplos do uso de `qpois`.
+
+1. Faça uma simulação usando `rpois`. Detalhe o exemplo do nosso pequeno mercado, que atende $4$ clientes por minuto:
+
+   a. Gere uma amostra de números correspondendo a $1$ hora de funcionamento do caixa.
+   
+   a. Escreva uma função em R para processar esta amostra e retornar um vetor com a quantidade de clientes na fila ao final de cada minuto (de $1$ a $60$). Lembre-se de que o caixa processa $4$ clientes por minuto.
+   
+   a. Agora gere uma amostra de números correspondendo a $1$ hora de funcionamento do caixa, com uma média de $5$ clientes chegando por minuto.
+   
+   a. Use a função que você escreveu para processar esta amostra e retornar um vetor com a quantidade de clientes na fila a cada minuto (de $1$ a $60$), *supondo que o caixa ainda processa só $4$ clientes por minuto*.
+   
+
+## Aproximação da Binomial pela Poisson
+
+* Um fabricante de carros descobre que $1$ em cada $2.500$ carros que ele produz tem um defeito.
+
+* Qual a probabilidade de achar $4$ carros com defeito em uma amostra de $6.000$ carros?
+
+* Vamos usar $\text{Binom}\left(X \;\middle\vert\;n = 6.000, p = \frac{1}{2.500}\right)$:
+
+```{r carros-binom}
+prob <- 1/2500
+size <- 6000
+x <- 4
+dbinom(x, size, prob)
+```
+
+* Mas, e se modelarmos o problema com Poisson em vez da Binomial?
+
+* Uma das condições para usar Poisson é que a média seja constante. Para $6.000$ carros, a média de defeitos é $\frac{6.000}{2.500} = `r fm(6000/2500)`$.
+
+* Vamos usar, então, $\text{Poisson}\left(X \;\middle\vert\; \lambda = `r fm(6000/2500)` \right)$:
+
+```{r}
+lambda <- 6000/2500
+x <- 4
+dpois(x, lambda)
+```
+
+* Gráfico:
+
+```{r pois-binom-aprox, echo=FALSE}
+x <- 0:10
+tabela <- tibble(
+  X = x,
+  b = dbinom(X, size, prob),
+  p = dpois(X, lambda)
+)
+
+tabela %>% 
+  ggplot() +
+    geom_point(
+      aes(x = X, y = b, color = 'Binomial'),
+      size = 4,
+      alpha = .5
+    ) +
+    geom_point(
+      aes(x = X, y = p, color = 'Poisson'),
+      size = 1
+    ) +
+    scale_x_continuous(breaks = 0:10) +
+    labs(
+      title = 'Comparação:  Binom( X | n = 6.000, p = 1/2.500 )  e  Poisson( X | λ = 2,4 )',
+      y = NULL,
+      color = NULL
+    )
+
+```
+
+* Para valores grandes de $n~(6.000)$ e pequenos de $p~(1/2.500)$, a Binomial pode ser aproximada pela Poisson --- desde que você calcule a média $\lambda$, como fizemos.
+
+* A vantagem é que, diferente da Binomial, a Poisson não exige o cálculo do valor de $n \choose x$, que pode ser inviável mesmo com um computador.
+
+::: {.rmdimportant}
+
+#### Por quê? {-}
+
+O exemplo da quantidade de emissões de partículas alfa por minuto por uma massa fixa de material radioativo mostra uma relação fundamental entre as duas distribuições:
+
+  * Do ponto de vista de Poisson, sabemos a média de emissões por minuto do material, sem levar em consideração o comportamento de cada átomo.
+  
+  * Do ponto de vista da Binomial, o material é composto por um número enorme de átomos ($n$ é grande!), cada átomo com uma probabilidade fixa e muito baixa ($p$ pequeno!) de emitir uma partícula alfa no período de um minuto.
+
+:::
+
+
+# Funções para distribuições em R
+
+A esta altura, você já entendeu como funcionam as funções do R para distribuições discretas de probabilidade. Para uma distribuição de nome `DISTRIB`, as funções são as seguintes (`...` representam os parâmetros da distribuição):
+
+* `dDISTRIB(x, ...)`: retorna a probabilidade $P(X = x)$.
+
+* `pDISTRIB(q, ...)`: retorna a probabilidade $P(X \leq q)$ --- ou a probabilidade $P(X > q)$ se `lower.tail = FALSE`.
+
+* `qDISTRIB(p, ...)`: retorna o maior valor $q$ tal que $P(X = q) \leq p$ --- ou o menor valor $q$ tal que $P(X = q) > p$ se `lower.tail = FALSE`.
+
+* `rDISTRIB(n, ...)`: retorna um vetor com $n$ valores sorteados de acordo com a distribuição.
+
+
+# Jardim zoológico de distribuições
+
+Para sua diversão: https://ben18785.shinyapps.io/distribution-zoo/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div style="height: 1000px"></div>
+
+

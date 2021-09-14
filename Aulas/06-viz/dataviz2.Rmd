@@ -1,0 +1,166 @@
+---
+title: 'Visualização (cont.)'
+subtitle: 'ProbEst'
+author: 'fnaufel'
+email: 'https://fnaufel.github.io/'
+date: '`r format(Sys.Date(), "%d/%m/%Y")`'
+lang: 'pt'
+output: 
+  html_document:
+    theme: readable
+           # https://bootswatch.com/3/readable/
+    highlight: tango
+    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+    toc: true
+    toc_depth: 3
+    number_sections: true
+    fig_width: 7
+    fig_height: 5
+    fig_caption: true
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align = 'center')
+
+library(gt)
+
+library(summarytools)
+st_options(
+  plain.ascii = FALSE,
+  dfSummary.varnumbers = FALSE,
+  dfSummary.style = 'grid',
+  dfSummary.graph.magnif = .75
+)
+
+library(tidyverse)
+theme_set(
+  theme_linedraw() +                         # Set simple theme for ggplot
+    theme(                                   # with some tweaks
+      axis.title.y.left = element_text(
+         angle = 0,                          # Never rotate y axis title
+         margin = margin(r = 20),            # Separate y axis title a little 
+         vjust = .5                          # Leave y axis title in the middle
+      ),
+      axis.title.x.bottom = element_text(
+         margin = margin(t = 20)             # Separate x axis title a little 
+      ),
+      axis.line = element_blank(),           # No axis lines
+      panel.border = element_blank(),        # No frame
+      panel.grid.minor = element_blank()     # No grid minor lines
+    )
+)
+
+```
+
+```{js javascript-init, echo=FALSE}
+
+// Make off-site links open in a new window/tab
+function changeTargets() {
+  $("a").attr(
+    "target", function() {
+      // Load local links locally
+      if (this.host == location.host) return "_self"
+      // Load off-site links in a new window
+      else return "_blank";
+    }
+  );
+}
+
+// Execute when document is ready
+$(
+  changeTargets
+)
+```
+
+
+# Dataset
+
+```{r sono}
+sono <- msleep %>% 
+  select(name, vore, bodywt, brainwt, sleep_total)
+
+sono
+```
+
+
+# Histogramas e cia.
+
+A idéia agora é agrupar indivíduos em classes, dependendo do valor de uma variável numérica.
+
+Vamos nos concentrar nas horas de sono.
+
+## Distribuições de frequência
+
+Em R base, é fácil fazer os agrupamentos:
+
+```{r vetor-horas-sono}
+sono %>% pull(sleep_total)
+```
+
+```{r amplitude-sono}
+sono %>% 
+  pull(sleep_total) %>% 
+  range()
+```
+
+```{r cut-horas-sono}
+sono %>% 
+  pull(sleep_total) %>% 
+  cut(
+    breaks = seq(0, 20, 2), 
+    right = FALSE
+  )
+```
+
+```{r dist-table-sono}
+sono %>% 
+  pull(sleep_total) %>%  
+  cut(
+    breaks = seq(0, 20, 2), 
+    right = FALSE
+  ) %>% 
+  table(dnn = 'Horas de sono') %>% 
+  as.data.frame()
+```
+
+## Histogramas
+
+```{r hist-sono}
+sono %>% 
+  ggplot(aes(x = sleep_total)) +
+    geom_histogram(breaks = seq(0, 20, 2)) +
+    scale_x_continuous(breaks = seq(0, 20, 2))
+```
+
+## Polígonos de frequência
+
+```{r hist-freqpoly}
+sono %>% 
+  ggplot(aes(x = sleep_total)) +
+#    geom_histogram(breaks = seq(0, 20, 2), alpha = 0.5) +
+    geom_freqpoly(breaks = seq(0, 20, 2), color = 'red') +
+    scale_x_continuous(breaks = seq(0, 20, 2))
+```
+
+# Ramos e folhas (R base, não `ggplot`)
+
+```{r stem-and-leaf}
+sono %>% 
+  pull(sleep_total) %>% 
+  stem()
+```
+
+# Ogivas (gráficos de frequência acumulada)
+
+```{r ogiva}
+sono %>% 
+  ggplot(aes(x = sleep_total)) +
+  geom_step(stat = 'ecdf')
+```
+
+# Exercícios
+
+1. Construa um histograma da variável `brainwt`. Escolha o número de classes que você achar melhor. O que acontece com os valores `NA`?
+
+2. Construa um *scatter plot* de horas de sono versus peso do cérebro. Você percebe alguma correlação entre estas variáveis? 
