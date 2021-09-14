@@ -5,23 +5,20 @@ author: 'fnaufel'
 email: 'https://fnaufel.github.io/'
 date: ' (v. `r format(Sys.Date(), "%d/%m/%Y")`)'
 lang: 'pt'
-# TODO: include LaTeX fields
 output: 
-  html_document:
-    theme: readable
-           # https://bootswatch.com/3/readable/
-    highlight: tango
-    css: styles.css
+  rmdformat::fnaufel_rmd_format:
+    theme: readable # https://bootswatch.com/3/readable/
+    highlight: pygment
     toc: true
     toc_depth: 2
-    # toc_float: true
+    toc_float: true
     number_sections: true
     fig_caption: true
     df_print: paged
     self_contained: true
     code_download: true
-    # code_folding: show
-    # keep_md: true
+    code_folding: show
+    keep_md: false
     # includes:
     #   in_header: header.html
     #   before_body: doc_prefix.html

@@ -6,18 +6,23 @@ email: 'https://fnaufel.github.io/'
 date: '`r format(Sys.Date(), "%d/%m/%Y")`'
 lang: 'pt'
 output: 
-  html_document:
-    theme: readable
-           # https://bootswatch.com/3/readable/
-    highlight: tango
-    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+  rmdformat::fnaufel_rmd_format:
+    theme: readable # https://bootswatch.com/3/readable/
+    highlight: pygment
     toc: true
     toc_depth: 2
+    toc_float: true
     number_sections: true
-    fig_width: 7
-    fig_height: 5
     fig_caption: true
+    df_print: paged
     self_contained: true
+    code_download: true
+    code_folding: show
+    keep_md: false
+    # includes:
+    #   in_header: header.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
 ---
 
 ```{r setup, include=FALSE}

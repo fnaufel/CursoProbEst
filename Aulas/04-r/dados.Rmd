@@ -3,11 +3,24 @@ title: "Introdução a R (cont.)"
 subtitle: "Ciência de dados 😜"
 author: "fnaufel"
 date: "(modificado em `r Sys.Date()`)"
-output:
-  html_document:
+output: 
+  rmdformat::fnaufel_rmd_format:
+    theme: readable # https://bootswatch.com/3/readable/
+    highlight: pygment
     toc: true
-    toc_depth: 3
+    toc_depth: 2
+    toc_float: true
     number_sections: true
+    fig_caption: true
+    df_print: paged
+    self_contained: true
+    code_download: true
+    code_folding: show
+    keep_md: false
+    # includes:
+    #   in_header: header.html
+    #   before_body: doc_prefix.html
+    #   after_body: doc_suffix.html
 ---
 
 ```{r setup}

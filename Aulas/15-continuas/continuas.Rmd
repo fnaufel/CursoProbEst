@@ -5,23 +5,20 @@ author: 'fnaufel'
 email: 'https://fnaufel.github.io/'
 date: 'Criado em 13/11/2020<br />Versão de `r format(Sys.Date(), "%d/%m/%Y")`'
 lang: 'pt'
-# TODO: include LaTeX fields
 output: 
-  html_document:
-    theme: readable
-           # https://bootswatch.com/3/readable/
-    highlight: tango
-    css: file:///home/fnaufel/RMarkdown/Template01/styles.css
+  rmdformat::fnaufel_rmd_format:
+    theme: readable # https://bootswatch.com/3/readable/
+    highlight: pygment
     toc: true
     toc_depth: 2
+    toc_float: true
     number_sections: true
-    fig_width: 7
-    fig_height: 5
     fig_caption: true
-    df_print: kable
+    df_print: paged
     self_contained: true
-    # code_folding: show
-    # keep_md: true
+    code_download: true
+    code_folding: show
+    keep_md: false
     # includes:
     #   in_header: header.html
     #   before_body: doc_prefix.html
@@ -868,7 +865,6 @@ normal_binom(20, .5, c(0, 20)) + scale_x_continuous(breaks = 0:20)
 
 
 
-# Exponencial
 # Exponencial
 
 ## Exemplo
