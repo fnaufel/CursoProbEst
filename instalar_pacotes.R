@@ -19,7 +19,7 @@ extrair_pacotes <- function(arquivo) {
   conteudo <- readLines(arquivo)
   
   achados <- regexpr(
-    '(?<=library\\()[^)]+', 
+    '(?<=library\\()[^),]+', 
     conteudo, 
     perl = TRUE
   )
@@ -27,7 +27,7 @@ extrair_pacotes <- function(arquivo) {
   pacotes_lib <- regmatches(conteudo, achados)
 
   achados <- regexpr(
-    '(?<=require\\()[^)]+', 
+    '(?<=require\\()[^),]+', 
     conteudo, 
     perl = TRUE
   )
