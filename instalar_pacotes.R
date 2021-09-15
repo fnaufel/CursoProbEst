@@ -2,6 +2,9 @@
 # Script para instalar todos os pacotes usados nos arquivos Rmd 
 # do diretório Aulas
 
+if (!require(rstudioapi, quietly = TRUE))
+  install.packages("rstudioapi")
+
 # Nomes dos arquivos .Rmd no diretório Aulas
 arquivos <- list.files(
   paste(rstudioapi::getActiveProject(), 'Aulas', sep = '/'), 
@@ -48,7 +51,7 @@ instalar <- setdiff(necessarios, instalados)
 
 # Instalar
 if (length(instalar) == 0) {
-  message('Todos os pacotes necessarios estão instalados.')
+  message('Todos os pacotes necessários estão instalados.')
 } else {
   message(
     'Instalando ',
@@ -59,8 +62,8 @@ if (length(instalar) == 0) {
 }
 
 # Instalar fnaufel/rmdformat
-if (!require(devtools))
-  install.packages(devtools)
+if (!require(devtools, quietly = TRUE))
+  install.packages('devtools')
 
 message('Instalando formato para gerar HTML...')
 devtools::install_github("fnaufel/rmdformat", quiet = TRUE)
