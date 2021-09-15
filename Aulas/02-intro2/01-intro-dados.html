@@ -4,11 +4,12 @@
     <title>Intro: Dados</title>
     <meta charset="utf-8" />
     <meta name="author" content="fnaufel" />
-    <meta name="date" content="2020-09-03" />
+    <meta name="date" content="2021-09-15" />
+    <script src="libs/header-attrs-2.10/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
-    <link href="libs/tile-view-0.0.18.9000/tile-view.css" rel="stylesheet" />
-    <script src="libs/tile-view-0.0.18.9000/tile-view.js"></script>
+    <link href="libs/tile-view-0.2.6/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view-0.2.6/tile-view.js"></script>
     <link href="libs/animate.css-3.7.2/animate.xaringan.css" rel="stylesheet" />
     <link href="libs/animate.css-xaringan-3.7.2/animate.fade.css" rel="stylesheet" />
     <!-- Uncomment below for network versions of jQuery and smartify: -->
@@ -18,10 +19,14 @@
     <!-- 			  crossorigin="anonymous"> -->
     <!-- </script> -->
     <!-- <script type="text/javascript" src="https://cdn.jsdelivr.net/gh/fnaufel/smartify/smartify.min.js"></script> -->
-    
+
     <!-- Uncomment below for local versions of jQuery and smartify: -->
     <script src="/home/fnaufel/Xaringan/js/jquery-3.4.1.slim.min.js"></script>
     <script type="text/javascript" src="/home/fnaufel/Xaringan/js/smartify.min.js"></script>
+
+    <!-- Hack to allow vertical alignment while using Apron -->
+    <script type="text/javascript" src="/home/fnaufel/Xaringan/js/vcenter.js"></script>
+
     <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/general.css" type="text/css" />
     <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/jetbrains-font.css" type="text/css" />
     <link rel="stylesheet" href="file:///home/fnaufel/Xaringan/css/apron.css" type="text/css" />
@@ -204,6 +209,7 @@ layout: false
 * Inferencial: usar amostras para concluir sobre a(s) população(ões).
 
 ---
+
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="file:///home/fnaufel/Xaringan/js/remark-latest.min.js"></script>
@@ -298,6 +304,7 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
 })(document);</script>
 <script type="text/javascript">
   smartify();
+  vcenter();
 </script>
 
 <script>
