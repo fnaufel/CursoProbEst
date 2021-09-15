@@ -5,21 +5,19 @@ date: "`r Sys.Date()`"
 output:
   xaringan::moon_reader:
     seal: false
-    chakra: "file:///home/fnaufel/Xaringan/js/remark-latest.min.js"
     lib_dir: libs
     includes:
-      in_header: "/home/fnaufel/Xaringan/js/in_header.html"
-      after_body: "/home/fnaufel/Xaringan/js/after_body.html"
-      mathjax: "file:///home/fnaufel/Xaringan/MathJax/MathJax.js?config=TeX-MML-AM_CHTML"
+      in_header: "../../Xaringan/js/in_header.html"
+      after_body: "../../Xaringan/js/after_body.html"
     css: ["default", 
           "default-fonts", 
-          "file:///home/fnaufel/Xaringan/css/general.css", 
-          "file:///home/fnaufel/Xaringan/css/jetbrains-font.css",
-          "file:///home/fnaufel/Xaringan/css/apron.css",
-          "file:///home/fnaufel/Xaringan/css/descartes.css",
-          "file:///home/fnaufel/Xaringan/css/adirondack.css"]
+          "../../Xaringan/css/general.css", 
+          "../../Xaringan/css/jetbrains-font.css",
+          "../../Xaringan/css/apron.css",
+          "../../Xaringan/css/descartes.css",
+          "../../Xaringan/css/adirondack.css"]
     nature:
-      beforeInit: "file:///home/fnaufel/Xaringan/js/macros.js"
+      beforeInit: "../../Xaringan/js/macros.js"
       ratio: "16:9"
       highlightStyle: github
       highlightLines: true
