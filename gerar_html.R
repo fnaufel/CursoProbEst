@@ -17,7 +17,7 @@ if (!require(xaringan))
   install.packages("xaringan")
 
 if (!require(xaringanExtra))
-  install.packages("xaringanExtra")
+  devtools::install_github("gadenbuie/xaringanExtra")
 
 # Gerar
 lapply(arquivos, rmarkdown::render, envir = new.env())
