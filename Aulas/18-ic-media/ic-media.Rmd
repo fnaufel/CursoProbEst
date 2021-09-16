@@ -5,36 +5,40 @@ author: 'fnaufel'
 email: 'https://fnaufel.github.io/'
 date: 'Criado em 17/02/2021<br />Versão de `r format(Sys.Date(), "%d/%m/%Y")`'
 lang: 'pt'
-output: 
-  rmdformat::fnaufel_rmd_format:
-    theme: readable # https://bootswatch.com/3/readable/
-    highlight: pygment
-    toc: true
-    toc_depth: 2
-    toc_float: true
-    number_sections: true
-    fig_caption: true
-    df_print: paged
-    self_contained: true
-    code_download: true
-    code_folding: show
-    keep_md: false
-    # includes:
-    #   in_header: header.html
-    #   before_body: doc_prefix.html
-    #   after_body: doc_suffix.html
+output: rmdformat::fnaufel_rmd_format
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
+library(knitr)
+
+opts_chunk$set(
   echo = TRUE, 
-  fig.align = 'center'
+  # collapse = TRUE,
+  # cache = TRUE,
+  out.width = "90%",
+  fig.align = 'center',
+  fig.width = 7,
+  fig.show = "hold"
 )
 
+# Supress crayon output
+options(crayon.enabled = FALSE)
+
+options(
+  # Avoid scientific notation
+  scipen = 15,
+  # Use a comma as decimal separator
+  OutDec = ',',
+  # Number of decimal digits for numbers produced by inline R code
+  fmdigits = 2
+)
+
+# Useful libraries
 library(glue)
 library(patchwork)
 library(latex2exp)
 library(kableExtra)
+options(knitr.kable.NA = '')
 
 # For nice dataframe summaries
 library(summarytools)
@@ -48,64 +52,23 @@ st_options(
 # Tidy!
 library(tidyverse)
 
-# Sober theme for ggplot
-theme_set(
-  theme_linedraw() +                         # Set simple theme for ggplot
-    theme(                                   # with some tweaks
-      axis.title.y.left = element_text(
-         angle = 0,                          # Never rotate y axis title
-         margin = margin(r = 20),            # Separate y axis title a little 
-         vjust = .5                          # Leave y axis title in the middle
-      ),
-      axis.title.x.bottom = element_text(
-         margin = margin(t = 20)             # Separate x axis title a little 
-      ),
-      axis.line = element_blank(),           # No axis lines
-      panel.border = element_blank(),        # No frame
-      panel.grid.minor = element_blank()     # No grid minor lines
-    )
+# Useful functions provided by the rmdformat package
+# 
+# Execute 
+# 
+#   cat(system.file("rmarkdown/resources/common.R", package = "rmdformat"))
+# 
+# to see the location of the file
+source(
+  system.file(
+    "rmarkdown/resources/common.R",
+    package = "rmdformat"
+  )
 )
-
-# Avoid scientific notation and use a comma as decimal separator
-options(
-  scipen = 15,
-  OutDec = ','
-)
-
-# Format a number with thousand separators (default point)
-# and decimal comma enclosed in curly braces for LaTeX printing.
-# CAREFUL: if called outside math mode, will print the braces!
-fm <- function(x, big = '.', decimal = '{,}') {
-  if (!is.numeric(x)) {
-    x
-  } else {
-    prettyNum(x, big.mark = big, decimal.mark = decimal)
-  }
-
-}
 
 library(ggrepel)
 ```
 
-```{js javascript-init, echo=FALSE}
-
-// Make off-site links open in a new window/tab
-function changeTargets() {
-  $("a").attr(
-    "target", function() {
-      // Load local links locally
-      if (this.host == location.host) return "_self"
-      // Load off-site links in a new window
-      else return "_blank";
-    }
-  );
-}
-
-// Execute when document is ready
-$(
-  changeTargets
-)
-```
 
 
 # Exemplo: preço médio da gasolina
