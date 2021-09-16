@@ -28,6 +28,10 @@ Estou desenvolvendo um livro eletrônico interativo baseado neste material. Post
 
 ## Como usar estes arquivos
 
+### Primeira opção: online
+
+Nesta opção, você precisa apenas de um navegador. Nada vai ser instalado no seu computador.
+
 1. Vá para o [site do RStudio Cloud](https://rstudio.cloud/).
 
 1. Faça *login* (criando uma conta ou usando sua conta do Google ou do GitHub).
@@ -47,6 +51,29 @@ Estou desenvolvendo um livro eletrônico interativo baseado neste material. Post
    ```
    
 1. Depois de alguns instantes, uma cópia deste repositório estará instalada como um projeto na sua conta do Rstudio Cloud.
+
+1. Para executar os comandos que aparecem nos vídeos e nos arquivos, você precisa instalar diversos pacotes. 
+
+   Digite o seguinte comando no *prompt* do R:
+
+    ```{r eval=FALSE}
+    source('instalar_pacotes.R')
+    ```
+
+1. Aguarde alguns minutos enquanto os pacotes são instalados.
+
+
+### Segunda opção: no seu computador
+
+1. [Baixe e instale o R](https://cran.r-project.org/) para o seu sistema operacional.
+
+1. [Baixe e instale o RStudio Desktop Free](https://www.rstudio.com/products/rstudio/download/) para o seu sistema operacional.
+
+1. [Baixe o conteúdo deste repositório](https://github.com/fnaufel/CursoProbEst/archive/refs/heads/master.zip) em formato .zip.
+
+1. Descompacte o arquivo .zip em um diretório da sua escolha.
+
+1. Abra o RStudio Desktop Free e abra o projeto que está no diretório que você escolheu.
 
 1. Para executar os comandos que aparecem nos vídeos e nos arquivos, você precisa instalar diversos pacotes. 
 
