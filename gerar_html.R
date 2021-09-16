@@ -10,13 +10,13 @@ arquivos <- list.files(
 )
 
 # Instalar rmarkdown e xaringan, se necessário
-if (!require(rmarkdown))
+if (!require(rmarkdown, quietly = TRUE))
   install.packages("rmarkdown")
 
-if (!require(xaringan))
+if (!require(xaringan, quietly = TRUE))
   install.packages("xaringan")
 
-if (!require(xaringanExtra))
+if (!require(xaringanExtra, quietly = TRUE))
   devtools::install_github("gadenbuie/xaringanExtra")
 
 # Gerar
