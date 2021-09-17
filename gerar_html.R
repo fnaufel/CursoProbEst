@@ -19,6 +19,17 @@ if (!require(xaringan, quietly = TRUE))
 if (!require(xaringanExtra, quietly = TRUE))
   devtools::install_github("gadenbuie/xaringanExtra")
 
+
+if (!require(callr))
+  install.packages('callr')
+
 # Gerar
-lapply(arquivos, rmarkdown::render, envir = new.env())
+message('Gerando HTML...')
+for (arquivo in arquivos) {
+  callr::r(
+    function(d) rmarkdown::render(d), 
+    args = list(arquivo),
+    show = TRUE
+  )
+}
 
