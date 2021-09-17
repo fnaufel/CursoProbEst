@@ -6,6 +6,9 @@ email: 'https://fnaufel.github.io/'
 date: ' (v. `r format(Sys.Date(), "%d/%m/%Y")`)'
 lang: 'pt'
 output: rmdformat::fnaufel_rmd_format
+# To install this format, enter
+#   install.packages("devtools")
+#   devtools::install_github("fnaufel/rmdformat")
 ---
 
 ```{r setup, include=FALSE}

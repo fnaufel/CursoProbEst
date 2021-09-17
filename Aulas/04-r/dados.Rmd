@@ -4,6 +4,9 @@ subtitle: "Ciência de dados 😜"
 author: "fnaufel"
 date: "(modificado em `r Sys.Date()`)"
 output: rmdformat::fnaufel_rmd_format
+# To install this format, enter
+#   install.packages("devtools")
+#   devtools::install_github("fnaufel/rmdformat")
 ---
 
 ```{r setup, include=FALSE}

@@ -6,6 +6,9 @@ email: 'https://fnaufel.github.io/'
 date: '`r format(Sys.Date(), "%d/%m/%Y")`'
 lang: 'pt'
 output: rmdformat::fnaufel_rmd_format
+# To install this format, enter
+#   install.packages("devtools")
+#   devtools::install_github("fnaufel/rmdformat")
 ---
 
 ```{r setup, include=FALSE}
@@ -79,8 +82,8 @@ source(
   \begin{align*}
   P(\text{cachorro } \cup \text{ gato}) 
     &= P(\text{cachorro}) + P(\text{gato}) - P(\text{cachorro } \cap \text{ gato}) \\
-    &= 0.25 + 0.29 - 0.12 \\
-    &= 0.42
+    &= 0{,}25 + 0{,}29 - 0{,}12 \\
+    &= 0{,}42
   \end{align*}
   $$
 
@@ -377,7 +380,7 @@ onde
 Então,
 $$
 \begin{align*}
-P(A) = \frac{30}{130} + \frac{20}{130} = \frac{50}{130} \approx 0.39
+P(A) = \frac{30}{130} + \frac{20}{130} = \frac{50}{130} \approx 0{,}39
 \end{align*}
 $$
 ou, usando a segunda fórmula,
@@ -385,7 +388,7 @@ $$
 \begin{align*}
 P(A) &= \frac{30}{80} \cdot \frac{80}{130} + \frac{20}{50} \cdot \frac{50}{130} \\
      &= \frac{50}{130} \\
-     &\approx 0.39
+     &\approx 0{,}39
 \end{align*}
 $$
 
@@ -396,22 +399,22 @@ $$
 
 * De todos os emails, 60% são spam:
 $$
-P(\text{spam}) = 0.6
+P(\text{spam}) = 0{,}6
 $$
 
 * De todos os emails que são spam, 90% contêm a palavra "compre":
 $$
-P(\text{compre} \mid \text{spam}) = 0.9
+P(\text{compre} \mid \text{spam}) = 0{,}9
 $$
 
 * De todos os emails (spam ou não), 70% contêm a palavra "compre":
 $$
-P(\text{compre}) = 0.7
+P(\text{compre}) = 0{,}7
 $$
 
 * Acabo de receber um email. Sem abri-lo, qual a probabilidade de ser spam? 
 
-  Bem, na ausência de informação adicional, $P(\text{spam}) = 0.6$.
+  Bem, na ausência de informação adicional, $P(\text{spam}) = 0{,}6$.
 
 * Abri o email. Ele contém a palavra "compre". Agora, qual a probabilidade de ser spam?
 $$
@@ -440,7 +443,7 @@ $$
 
 * Substituindo os valores:
 $$
-P(\text{spam} \mid \text{compre}) = \frac{0.9 \cdot 0.6}{0.7} \approx 0.77
+P(\text{spam} \mid \text{compre}) = \frac{0{,}9 \cdot 0{,}6}{0{,}7} \approx 0{,}77
 $$
 
 
@@ -474,19 +477,19 @@ $$P(B) = P(B \mid A_1)P(A_1) + P(B \mid A_2)P(A_2) + \cdots + P(B \mid A_n)P(A_n
 
 * Qual a probabilidade de você ter a doença?
 
-* $P(D) = 0.00005$; daí, $P(ND) = 0.99995$.
+* $P(D) = 0{,}00005$; daí, $P(ND) = 0{,}99995$.
 
-* $P(+ \mid D) = 0.999$; daí, $P(- \mid D) = 0.001$ (falso negativo).
+* $P(+ \mid D) = 0{,}999$; daí, $P(- \mid D) = 0{,}001$ (falso negativo).
 
-* $P(+ \mid ND) = 0.01$ (falso positivo); daí, $P(- \mid ND) = 0.99$
+* $P(+ \mid ND) = 0{,}01$ (falso positivo); daí, $P(- \mid ND) = 0{,}99$
 
 * Não temos $P(+)$, mas podemos achar usando o teorema da probabilidade total:
   $$
   \begin{align*}
   P(+) &= P(+ \cap D) \;+\; P(+ \cap ND) \\
      &= P(+ \mid D)P(D) \;+\; P(+ \mid ND)P(ND) \\
-     &= 0.999 \cdot 0.00005 \;+\; 0.01 \cdot 0.99995 \\
-     &= 0.01004945
+     &= 0{,}999 \cdot 0{,}00005 \;+\; 0{,}01 \cdot 0{,}99995 \\
+     &= 0{,}01004945
   \end{align*}
   $$
 
@@ -495,8 +498,8 @@ $$P(B) = P(B \mid A_1)P(A_1) + P(B \mid A_2)P(A_2) + \cdots + P(B \mid A_n)P(A_n
   $$
   \begin{align*}
     P(D \mid +) &= \frac{P(+ \mid D)P(D)}{P(+)} \\
-                &= \frac{0.999 \cdot 0.00005}{0.01004945} \\
-                &= 0.00497
+                &= \frac{0{,}999 \cdot 0{,}00005}{0{,}01004945} \\
+                &= 0{,}00497
   \end{align*}
   $$
 
